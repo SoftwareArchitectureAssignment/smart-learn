@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +18,7 @@ const registerSchema = z
       .min(10, "Phone number must be at least 10 characters")
       .regex(/^[\d\s\-\+\(\)]+$/, "Please enter a valid phone number"),
     role: z.enum(["STUDENT", "TEACHER", "ADMIN"]),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/(?=.*[a-z])/, "Password must contain at least one lowercase letter")
-      .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
-      .regex(/(?=.*\d)/, "Password must contain at least one number"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -30,6 +27,8 @@ const registerSchema = z
   });
 
 export default function Register() {
+  const { register, loading } = useAuth();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +36,6 @@ export default function Register() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [role, setRole] = useState("STUDENT");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
 
   const validateForm = () => {
     try {
@@ -65,17 +63,14 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    // Handle registration logic here
-    console.log("Register:", { name, email, password, phoneNumber, role });
-    // After successful registration, redirect to dashboard
-    navigate("/dashboard");
+    await register(email, name, password, phoneNumber, role);
   };
 
   return (
