@@ -104,11 +104,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setLoading(true);
 
-    localStorage.set("accessToken", "");
+    localStorage.removeItem("accessToken");
     setUser(null);
     setLoading(false);
 
-    navigate("/dashboard");
+    navigate("/login");
   };
 
   const updateUser = async (data: {
