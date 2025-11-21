@@ -22,10 +22,10 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Tổng quan</h1>
+          <h1 className="mb-6 text-3xl font-bold text-gray-900">Tổng quan</h1>
 
-          <div className="bg-white p-8 rounded-lg shadow-sm border">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Thông tin người dùng</h2>
+          <div className="rounded-lg border bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-xl font-semibold text-gray-800">Thông tin người dùng</h2>
 
             {isLoading && <p className="text-gray-600">Đang tải...</p>}
 

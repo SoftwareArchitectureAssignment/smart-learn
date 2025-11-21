@@ -142,14 +142,14 @@ export default function CourseStudents({}: CourseStudentsProps) {
   return (
     <div className="max-w-7xl">
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Tổng học viên</p>
+              <p className="mb-1 text-sm text-gray-600">Tổng học viên</p>
               <p className="text-2xl font-bold text-gray-900">{mockStudents.length}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
               <Award className="h-6 w-6 text-blue-600" />
             </div>
           </div>
@@ -158,10 +158,10 @@ export default function CourseStudents({}: CourseStudentsProps) {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Tiến độ TB</p>
+              <p className="mb-1 text-sm text-gray-600">Tiến độ TB</p>
               <p className="text-2xl font-bold text-gray-900">{avgProgress.toFixed(0)}%</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
               <TrendingUp className="h-6 w-6 text-green-600" />
             </div>
           </div>
@@ -170,10 +170,10 @@ export default function CourseStudents({}: CourseStudentsProps) {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Điểm TB</p>
+              <p className="mb-1 text-sm text-gray-600">Điểm TB</p>
               <p className="text-2xl font-bold text-gray-900">{avgGrade.toFixed(1)}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50">
               <CheckCircle2 className="h-6 w-6 text-purple-600" />
             </div>
           </div>
@@ -182,10 +182,10 @@ export default function CourseStudents({}: CourseStudentsProps) {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Hoạt động</p>
+              <p className="mb-1 text-sm text-gray-600">Hoạt động</p>
               <p className="text-2xl font-bold text-gray-900">{activeStudents}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-orange-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-50">
               <Clock className="h-6 w-6 text-orange-600" />
             </div>
           </div>
@@ -193,10 +193,10 @@ export default function CourseStudents({}: CourseStudentsProps) {
       </div>
 
       {/* Filters */}
-      <Card className="p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <Card className="mb-6 p-4">
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               type="text"
               placeholder="Tìm kiếm học viên..."
@@ -231,16 +231,16 @@ export default function CourseStudents({}: CourseStudentsProps) {
           </Card>
         ) : (
           filteredStudents.map((student) => (
-            <Card key={student.id} className="p-6 hover:shadow-md transition-shadow">
+            <Card key={student.id} className="p-6 transition-shadow hover:shadow-md">
               <div className="flex items-start gap-6">
                 {/* Avatar */}
                 <img src={student.avatar} alt={student.name} className="h-16 w-16 rounded-full" />
 
                 {/* Info */}
                 <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="mb-3 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">{student.name}</h3>
+                      <h3 className="mb-1 text-lg font-bold text-gray-900">{student.name}</h3>
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
                           <Mail className="h-4 w-4" />
@@ -257,7 +257,7 @@ export default function CourseStudents({}: CourseStudentsProps) {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-600 mb-1">Điểm số</p>
+                      <p className="mb-1 text-sm text-gray-600">Điểm số</p>
                       <p className={`text-2xl font-bold ${getGradeColor(student.grade)}`}>{student.grade}</p>
                     </div>
                   </div>
@@ -270,7 +270,7 @@ export default function CourseStudents({}: CourseStudentsProps) {
                       </span>
                       <span className="font-semibold text-gray-900">{student.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all ${getProgressColor(student.progress)}`}
                         style={{ width: `${student.progress}%` }}

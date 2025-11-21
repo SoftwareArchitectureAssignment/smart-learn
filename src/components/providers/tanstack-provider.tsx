@@ -11,7 +11,7 @@ const TanstackProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
             refetchOnWindowFocus: false,
           },
           mutations: {
-            retry: 1,
+            retry: false,
           },
         },
       }),

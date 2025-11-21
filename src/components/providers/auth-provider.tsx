@@ -1,156 +1,166 @@
-"use client";
-
-import { useLocation, useNavigate } from "react-router-dom";
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, type ReactNode, useContext } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { navigate } from "@/lib/navigation";
 import type { IUser } from "@/types/user.type";
-import { registerApi } from "@/apis/auth/register";
-import { loginApi } from "@/apis/auth/login";
+import { authApi } from "@/apis/auth/auth.api";
+import { registerApi } from "@/apis/auth/register.api";
+import { loginApi } from "@/apis/auth/login.api";
 import { updateProfileApi } from "@/apis/auth/update-profile.api";
+import LoadingScreen from "@/components/shared/loading-screen";
 
 interface AuthContextType {
   user: IUser | null;
-  loading: boolean;
-  register: (email: string, name: string, password: string, phoneNumber: string, role: string) => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
+  isGettingUser: boolean;
+
+  register: (data: {
+    email: string;
+    name: string;
+    password: string;
+    phone: string;
+    role: "STUDENT" | "TEACHER" | "ADMIN";
+  }) => Promise<void>;
+  isRegistering: boolean;
+
+  login: (data: { email: string; password: string }) => Promise<void>;
+  isLoggingIn: boolean;
+
   logout: () => Promise<void>;
-  updateUser: (data: { id: string; fullname?: string; email?: string; avatarUrl?: string }) => Promise<void>;
-}
+  isLoggingOut: boolean;
 
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password", "/not-found"];
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const [user, setUser] = useState<IUser | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const hasGetUser = useRef(false);
-
-  const refreshUser = useCallback(async () => {
-    setLoading(true);
-
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (!PUBLIC_ROUTES.includes(location.pathname)) {
-        if (hasGetUser.current) return;
-
-        hasGetUser.current = true;
-        await refreshUser();
-      }
-    };
-
-    checkAuth();
-  }, [location.pathname, navigate, refreshUser]);
-
-  const register = async (email: string, name: string, password: string, phoneNumber: string, role: string) => {
-    setLoading(true);
-    const [res, err] = await registerApi({ email, name, password, phoneNumber, role });
-
-    if (err) {
-      toast.error("Registration failed", {
-        description: err.message,
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Registration successful", {
-      description: res.message,
-      duration: 3000,
-    });
-
-    localStorage.setItem("accessToken", res.data.accessToken);
-    setUser({ ...res.data.user, accessToken: res.data.accessToken });
-    setLoading(false);
-
-    navigate("/dashboard");
-  };
-
-  const login = async (email: string, password: string) => {
-    setLoading(true);
-    const [res, err] = await loginApi({ email, password });
-
-    if (err) {
-      toast.error("Login failed", {
-        description: err.message,
-        duration: 3000,
-      });
-
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Login successful", {
-      description: res.message,
-      duration: 3000,
-    });
-
-    localStorage.setItem("accessToken", res.data.accessToken);
-    setUser({ ...res.data.user, accessToken: res.data.accessToken });
-    setLoading(false);
-
-    navigate("/dashboard");
-  };
-
-  const logout = async () => {
-    setLoading(true);
-
-    localStorage.set("accessToken", "");
-    setUser(null);
-    setLoading(false);
-
-    navigate("/dashboard");
-  };
-
-  const updateUser = async (data: {
-    id: string;
+  updateProfile: (data: {
     email?: string;
     name?: string;
     password?: string;
-    phoneNumber?: string;
-    role?: string;
-  }) => {
-    setLoading(true);
-    const [res, err] = await updateProfileApi(data);
+    phone?: string;
+    role?: "STUDENT" | "TEACHER" | "ADMIN";
+  }) => Promise<void>;
+  isUpdatingProfile: boolean;
+}
 
-    if (err) {
-      toast.error("Update failed", {
-        description: err.message,
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export default function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+
+  const { data: user, isLoading: isGettingUser } = useQuery<IUser>({
+    queryKey: ["auth"],
+    queryFn: async () => {
+      const res = await authApi();
+      return res.toUser();
+    },
+    retry: false,
+  });
+
+  const register = useMutation({
+    mutationFn: async (data: {
+      email: string;
+      name: string;
+      password: string;
+      phone: string;
+      role: "STUDENT" | "TEACHER" | "ADMIN";
+    }) => {
+      const res = await registerApi({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+        phoneNumber: data.phone,
+        role: data.role,
+      });
+
+      toast.success("Registration successful", {
+        description: res.message,
         duration: 3000,
       });
 
-      return;
-    }
+      const user = res.toUser();
+      queryClient.setQueryData(["auth"], user);
+      localStorage.setItem("accessToken", res.data.accessToken);
+      navigate(`/${user.role.toLowerCase()}/dashboard`);
+    },
+    onError: (error: any) => {
+      toast.error("Registration failed", {
+        description: error.response?.data?.message || error.message,
+        duration: 3000,
+      });
+    },
+  });
 
-    toast.success("Update successful", {
-      description: res.message,
-      duration: 3000,
-    });
+  const login = useMutation({
+    mutationFn: async (data: { email: string; password: string }) => {
+      const res = await loginApi({
+        email: data.email,
+        password: data.password,
+      });
 
-    setUser(res.data.user);
-    setLoading(false);
-  };
+      toast.success("Login successful", {
+        description: res.message,
+        duration: 3000,
+      });
+
+      const user = res.toUser();
+      queryClient.setQueryData(["auth"], user);
+      localStorage.setItem("accessToken", res.data.accessToken);
+      navigate(`/${user.role.toLowerCase()}/dashboard`);
+    },
+    onError: (error: any) => {
+      toast.error("Login failed", {
+        description: error.response?.data?.message || error.message,
+        duration: 3000,
+      });
+    },
+  });
+
+  const logout = useMutation({
+    mutationFn: async () => {
+      toast.success("Logout successful", { duration: 3000 });
+      queryClient.removeQueries();
+      localStorage.removeItem("accessToken");
+      navigate("/login");
+    },
+  });
+
+  const updateProfile = useMutation({
+    mutationFn: async (data: {
+      email?: string;
+      name?: string;
+      password?: string;
+      phone?: string;
+      role?: "STUDENT" | "TEACHER" | "ADMIN";
+    }) => {
+      const res = await updateProfileApi(data);
+
+      toast.success("Update successful", {
+        description: res.message,
+        duration: 3000,
+      });
+
+      queryClient.setQueryData(["auth"], res.toUser());
+    },
+    onError: (error: any) => {
+      toast.error("Update failed", {
+        description: error.response?.data?.message || error.message,
+        duration: 3000,
+      });
+    },
+  });
 
   const value = {
-    user,
-    loading,
-    register,
-    login,
-    logout,
-    updateUser,
+    user: user || null,
+    isGettingUser,
+    register: register.mutateAsync,
+    isRegistering: register.isPending,
+    login: login.mutateAsync,
+    isLoggingIn: login.isPending,
+    logout: logout.mutateAsync,
+    isLoggingOut: logout.isPending,
+    updateProfile: updateProfile.mutateAsync,
+    isUpdatingProfile: updateProfile.isPending,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={value}>{isGettingUser ? <LoadingScreen /> : children}</AuthContext.Provider>;
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

@@ -1,6 +1,7 @@
 import Axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 
-import { AuthError } from "@/types/error.type";
+import { isPublicRoute, navigate } from "@/lib/navigation";
 
 const apiInstance: AxiosInstance = Axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -27,22 +28,26 @@ apiInstance.interceptors.response.use(
   (response) => response,
   async (error: any) => {
     if (error.response) {
-      const { status, data } = error.response;
+      const { status } = error.response;
 
       // Handle auth errors
       if (status === 401) {
-        throw new AuthError(data.message, status);
+        if (!window.location.pathname.startsWith("/login") && !isPublicRoute(window.location.pathname)) {
+          toast.error("Session expired. Please login again.", { duration: 3000 });
+          localStorage.removeItem("accessToken");
+          navigate("/login");
+        }
       }
     }
 
-    // Re-throw original error for other status codes
-    throw error;
+    // Return original error for other status codes
+    return Promise.reject(error);
   },
 );
 
 // Define the SafeExecResult types
-type SuccessResult<T> = readonly [T, null];
-type ErrorResult<E = Error> = readonly [null, E];
+type SuccessResult<T> = readonly [T, null, string];
+type ErrorResult<E = Error> = readonly [null, E, string];
 type SafeExecResult<T, E = Error> = SuccessResult<T> | ErrorResult<E>;
 
 // Safe execution function with method overloads
@@ -52,20 +57,16 @@ async function safeExec<T, E extends Error = Error>(
 ): Promise<SafeExecResult<T, E>> {
   try {
     const response = await apiInstance.request(config);
-    return [mapper(response.data), null] as const;
+    return [mapper(response.data), null, response.data?.message || "Operation completed successfully."] as const;
   } catch (error: any) {
-    if (error instanceof AuthError) {
-      return [null, error as unknown as E] as const;
-    }
-
     if (error.response) {
-      const { status, data } = error.response;
+      const { status = 400, data } = error.response;
       const errorMessage = data?.message || `Request failed with status code ${status}`;
-      return [null, new Error(errorMessage) as E] as const;
+      return [null, new Error(errorMessage) as E, errorMessage] as const;
     }
 
-    console.log(error);
-    return [null, new Error("Network error: Please check your connection") as E] as const;
+    const errorMessage = error.message || "Network error: Please check your connection";
+    return [null, new Error(errorMessage) as E, errorMessage] as const;
   }
 }
 

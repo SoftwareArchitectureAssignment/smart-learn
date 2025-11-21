@@ -391,14 +391,14 @@ export default function CourseContent({}: CourseContentProps) {
   return (
     <div className="max-w-5xl">
       {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Tổng số chương</p>
+              <p className="mb-1 text-sm text-gray-600">Tổng số chương</p>
               <p className="text-2xl font-bold text-gray-900">{sections.length}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
               <BookOpen className="h-6 w-6 text-blue-600" />
             </div>
           </div>
@@ -407,10 +407,10 @@ export default function CourseContent({}: CourseContentProps) {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Tổng nội dung</p>
+              <p className="mb-1 text-sm text-gray-600">Tổng nội dung</p>
               <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
               <FileText className="h-6 w-6 text-green-600" />
             </div>
           </div>
@@ -419,10 +419,10 @@ export default function CourseContent({}: CourseContentProps) {
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Ngày cập nhật</p>
+              <p className="mb-1 text-sm text-gray-600">Ngày cập nhật</p>
               <p className="text-sm font-semibold text-gray-900">{new Date().toLocaleDateString("vi-VN")}</p>
             </div>
-            <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50">
               <Clock className="h-6 w-6 text-purple-600" />
             </div>
           </div>
@@ -430,7 +430,7 @@ export default function CourseContent({}: CourseContentProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">Nội dung khóa học</h2>
         <div className="flex gap-2">
           <Button
@@ -455,13 +455,13 @@ export default function CourseContent({}: CourseContentProps) {
           <Card key={section.id} className="overflow-hidden">
             {/* Section Header */}
             <div
-              className={`flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+              className={`flex cursor-pointer items-center justify-between p-4 transition-colors hover:bg-gray-50 ${
                 section.isExpanded ? "border-b" : ""
               }`}
               onClick={() => toggleSection(section.id)}
             >
-              <div className="flex items-center gap-3 flex-1">
-                {editMode && <GripVertical className="h-5 w-5 text-gray-400 cursor-move" />}
+              <div className="flex flex-1 items-center gap-3">
+                {editMode && <GripVertical className="h-5 w-5 cursor-move text-gray-400" />}
                 <button className="text-gray-600 hover:text-gray-900">
                   {section.isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                 </button>
@@ -473,13 +473,13 @@ export default function CourseContent({}: CourseContentProps) {
               {editMode && (
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                     onClick={() => handleEditSection(section.id, section.title)}
                   >
                     <Edit className="h-4 w-4 text-gray-600" />
                   </button>
                   <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                     onClick={() => handleDeleteSection(section.id)}
                   >
                     <Trash2 className="h-4 w-4 text-red-600" />
@@ -498,19 +498,19 @@ export default function CourseContent({}: CourseContentProps) {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 p-4 hover:bg-white transition-colors border-b last:border-b-0 group"
+                      className="group flex items-center gap-3 border-b p-4 transition-colors last:border-b-0 hover:bg-white"
                     >
-                      {editMode && <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />}
+                      {editMode && <GripVertical className="h-4 w-4 cursor-move text-gray-400" />}
 
                       {/* Icon */}
-                      <div className={`shrink-0 h-10 w-10 rounded-lg flex items-center justify-center ${colorClass}`}>
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${colorClass}`}>
                         <Icon className="h-5 w-5" />
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-gray-900">{item.title}</h4>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                        <div className="mt-1 flex items-center gap-3 text-sm text-gray-600">
                           {item.duration && (
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -520,7 +520,7 @@ export default function CourseContent({}: CourseContentProps) {
                           {item.fileSize && <span className="text-gray-500">{item.fileSize}</span>}
                           {item.description && <span className="truncate">{item.description}</span>}
                           {item.uploadDate && !editMode && (
-                            <span className="text-gray-400 text-xs">
+                            <span className="text-xs text-gray-400">
                               • {item.uploadDate.toLocaleDateString("vi-VN")}
                             </span>
                           )}
@@ -540,7 +540,7 @@ export default function CourseContent({}: CourseContentProps) {
                               setViewQuizModalOpen(true);
                             }}
                           >
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="mr-1 h-4 w-4" />
                             Xem
                           </Button>
                         )}
@@ -555,7 +555,7 @@ export default function CourseContent({}: CourseContentProps) {
                               className="text-blue-600 hover:text-blue-700"
                               onClick={() => window.open(item.url, "_blank")}
                             >
-                              <ExternalLink className="h-4 w-4 mr-1" />
+                              <ExternalLink className="mr-1 h-4 w-4" />
                               Xem
                             </Button>
                           )}
@@ -579,7 +579,7 @@ export default function CourseContent({}: CourseContentProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-700"
+                          className="text-red-600 opacity-0 group-hover:opacity-100 hover:text-red-700"
                           onClick={() => handleDeleteContent(section.id, item.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -592,7 +592,7 @@ export default function CourseContent({}: CourseContentProps) {
                 {/* Add Item Button */}
                 {editMode && (
                   <button
-                    className="w-full p-4 text-left hover:bg-white transition-colors text-gray-600 hover:text-gray-900 flex items-center gap-2"
+                    className="flex w-full items-center gap-2 p-4 text-left text-gray-600 transition-colors hover:bg-white hover:text-gray-900"
                     onClick={() => handleAddContent(section.id)}
                   >
                     <Plus className="h-4 w-4" />
@@ -639,14 +639,14 @@ export default function CourseContent({}: CourseContentProps) {
 
       {/* Content Modal */}
       <Dialog open={contentModalOpen} onOpenChange={setContentModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
           <DialogHeader>
             <DialogTitle>{editingContentId ? "Chỉnh sửa nội dung" : "Thêm nội dung mới"}</DialogTitle>
             <DialogDescription>
               {editingContentId ? "Cập nhật thông tin nội dung" : "Thêm video, tài liệu, quiz hoặc ghi chú vào chương"}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4 overflow-y-auto flex-1">
+          <div className="flex-1 space-y-4 overflow-y-auto py-4">
             <div>
               <Label htmlFor="content-type">Loại nội dung *</Label>
               <Select
@@ -751,14 +751,14 @@ export default function CourseContent({}: CourseContentProps) {
                     placeholder="Mô tả ngắn về nội dung này..."
                     value={contentData.description}
                     onChange={(e) => setContentData({ ...contentData, description: e.target.value })}
-                    className="mt-2 w-full min-h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-2 min-h-20 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
 
                 {/* File Upload Section */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-1">Click để tải lên hoặc kéo thả file vào đây</p>
+                <div className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors hover:border-gray-400">
+                  <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+                  <p className="mb-1 text-sm text-gray-600">Click để tải lên hoặc kéo thả file vào đây</p>
                   <p className="text-xs text-gray-500">
                     {contentData.type === "video" ? "MP4, MOV, AVI (Max 500MB)" : "PDF, DOC, PPT, XLSX (Max 50MB)"}
                   </p>
@@ -791,9 +791,9 @@ export default function CourseContent({}: CourseContentProps) {
                 </div>
 
                 {/* Image Upload Section */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-1">Click để tải lên hình ảnh</p>
+                <div className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors hover:border-gray-400">
+                  <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+                  <p className="mb-1 text-sm text-gray-600">Click để tải lên hình ảnh</p>
                   <p className="text-xs text-gray-500">JPG, PNG, GIF, SVG (Max 10MB)</p>
                 </div>
               </>
@@ -808,9 +808,9 @@ export default function CourseContent({}: CourseContentProps) {
                     placeholder="Viết nội dung ghi chú quan trọng ở đây..."
                     value={contentData.description}
                     onChange={(e) => setContentData({ ...contentData, description: e.target.value })}
-                    className="mt-2 w-full min-h-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-2 min-h-40 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Hỗ trợ Markdown để định dạng văn bản</p>
+                  <p className="mt-1 text-xs text-gray-500">Hỗ trợ Markdown để định dạng văn bản</p>
                 </div>
               </>
             )}
@@ -859,13 +859,13 @@ export default function CourseContent({}: CourseContentProps) {
                       placeholder="Mô tả về nội dung và mục đích của bài kiểm tra..."
                       value={contentData.description}
                       onChange={(e) => setContentData({ ...contentData, description: e.target.value })}
-                      className="mt-2 w-full min-h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="mt-2 min-h-20 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
 
                   {/* Quiz Questions */}
-                  <div className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center justify-between mb-4">
+                  <div className="rounded-lg border bg-gray-50 p-4">
+                    <div className="mb-4 flex items-center justify-between">
                       <Label className="text-base font-semibold">Câu hỏi ({contentData.questions.length})</Label>
                       <Button
                         type="button"
@@ -885,14 +885,14 @@ export default function CourseContent({}: CourseContentProps) {
                           });
                         }}
                       >
-                        <Plus className="h-4 w-4 mr-1" />
+                        <Plus className="mr-1 h-4 w-4" />
                         Thêm câu hỏi
                       </Button>
                     </div>
 
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                    <div className="max-h-96 space-y-4 overflow-y-auto">
                       {contentData.questions.map((q, qIndex) => (
-                        <div key={q.id} className="bg-white p-4 rounded-lg border space-y-3">
+                        <div key={q.id} className="space-y-3 rounded-lg border bg-white p-4">
                           <div className="flex items-start justify-between gap-2">
                             <Label className="text-sm font-semibold">Câu {qIndex + 1}</Label>
                             <Button
@@ -935,7 +935,7 @@ export default function CourseContent({}: CourseContentProps) {
                                   setContentData({ ...contentData, questions: updated });
                                 }}
                               >
-                                <Plus className="h-3 w-3 mr-1" />
+                                <Plus className="mr-1 h-3 w-3" />
                                 Thêm lựa chọn
                               </Button>
                             </div>
@@ -950,7 +950,7 @@ export default function CourseContent({}: CourseContentProps) {
                                     updated[qIndex].correctAnswer = oIndex;
                                     setContentData({ ...contentData, questions: updated });
                                   }}
-                                  className="w-4 h-4 text-blue-600"
+                                  className="h-4 w-4 text-blue-600"
                                 />
                                 <Input
                                   placeholder={`Đáp án ${String.fromCharCode(65 + oIndex)}`}
@@ -985,7 +985,7 @@ export default function CourseContent({}: CourseContentProps) {
                                 )}
                               </div>
                             ))}
-                            <p className="text-xs text-gray-500 mt-1">✓ Chọn radio button để đánh dấu đáp án đúng</p>
+                            <p className="mt-1 text-xs text-gray-500">✓ Chọn radio button để đánh dấu đáp án đúng</p>
                           </div>
 
                           <div>
@@ -1005,8 +1005,8 @@ export default function CourseContent({}: CourseContentProps) {
                       ))}
 
                       {contentData.questions.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">
-                          <FileQuestion className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                        <div className="py-8 text-center text-gray-500">
+                          <FileQuestion className="mx-auto mb-2 h-12 w-12 text-gray-300" />
                           <p className="text-sm">Chưa có câu hỏi nào</p>
                           <p className="text-xs">Click "Thêm câu hỏi" để bắt đầu</p>
                         </div>
@@ -1030,24 +1030,24 @@ export default function CourseContent({}: CourseContentProps) {
 
       {/* View Quiz Modal */}
       <Dialog open={viewQuizModalOpen} onOpenChange={setViewQuizModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+        <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col">
           <DialogHeader>
             <DialogTitle>{viewingQuizItem?.title}</DialogTitle>
             <DialogDescription>{viewingQuizItem?.description || "Xem nội dung bài kiểm tra"}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4 overflow-y-auto flex-1">
+          <div className="flex-1 space-y-4 overflow-y-auto py-4">
             {/* Quiz Info */}
-            <div className="grid grid-cols-3 gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="grid grid-cols-3 gap-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
               <div>
-                <p className="text-xs text-gray-600 mb-1">Thời gian làm bài</p>
+                <p className="mb-1 text-xs text-gray-600">Thời gian làm bài</p>
                 <p className="font-semibold text-gray-900">{viewingQuizItem?.timeLimit || 30} phút</p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 mb-1">Điểm đạt</p>
+                <p className="mb-1 text-xs text-gray-600">Điểm đạt</p>
                 <p className="font-semibold text-gray-900">{viewingQuizItem?.passingScore || 70}%</p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 mb-1">Số câu hỏi</p>
+                <p className="mb-1 text-xs text-gray-600">Số câu hỏi</p>
                 <p className="font-semibold text-gray-900">{viewingQuizItem?.questions?.length || 0} câu</p>
               </div>
             </div>
@@ -1056,38 +1056,38 @@ export default function CourseContent({}: CourseContentProps) {
             {viewingQuizItem?.questions && viewingQuizItem.questions.length > 0 ? (
               <div className="space-y-6">
                 {viewingQuizItem.questions.map((q, qIndex) => (
-                  <div key={q.id} className="p-4 bg-white rounded-lg border">
-                    <div className="flex items-start gap-3 mb-3">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-600 text-sm font-semibold shrink-0">
+                  <div key={q.id} className="rounded-lg border bg-white p-4">
+                    <div className="mb-3 flex items-start gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-semibold text-purple-600">
                         {qIndex + 1}
                       </span>
-                      <p className="font-medium text-gray-900 flex-1">{q.question}</p>
+                      <p className="flex-1 font-medium text-gray-900">{q.question}</p>
                     </div>
 
-                    <div className="space-y-2 ml-9">
+                    <div className="ml-9 space-y-2">
                       {q.options.map((option, oIndex) => (
                         <div
                           key={oIndex}
-                          className={`flex items-start gap-2 p-3 rounded-lg border ${
-                            q.correctAnswer === oIndex ? "bg-green-50 border-green-300" : "bg-gray-50 border-gray-200"
+                          className={`flex items-start gap-2 rounded-lg border p-3 ${
+                            q.correctAnswer === oIndex ? "border-green-300 bg-green-50" : "border-gray-200 bg-gray-50"
                           }`}
                         >
-                          <span className="font-semibold text-gray-700 shrink-0">
+                          <span className="shrink-0 font-semibold text-gray-700">
                             {String.fromCharCode(65 + oIndex)}.
                           </span>
-                          <span className={q.correctAnswer === oIndex ? "text-green-900 font-medium" : "text-gray-700"}>
+                          <span className={q.correctAnswer === oIndex ? "font-medium text-green-900" : "text-gray-700"}>
                             {option}
                           </span>
                           {q.correctAnswer === oIndex && (
-                            <span className="ml-auto text-green-600 text-xs font-semibold">✓ Đáp án đúng</span>
+                            <span className="ml-auto text-xs font-semibold text-green-600">✓ Đáp án đúng</span>
                           )}
                         </div>
                       ))}
                     </div>
 
                     {q.explanation && (
-                      <div className="mt-3 ml-9 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-xs font-semibold text-blue-900 mb-1">💡 Giải thích:</p>
+                      <div className="mt-3 ml-9 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                        <p className="mb-1 text-xs font-semibold text-blue-900">💡 Giải thích:</p>
                         <p className="text-sm text-blue-800">{q.explanation}</p>
                       </div>
                     )}
@@ -1095,8 +1095,8 @@ export default function CourseContent({}: CourseContentProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
-                <FileQuestion className="h-16 w-16 mx-auto mb-3 text-gray-300" />
+              <div className="py-12 text-center text-gray-500">
+                <FileQuestion className="mx-auto mb-3 h-16 w-16 text-gray-300" />
                 <p className="text-sm">Bài kiểm tra này chưa có câu hỏi</p>
               </div>
             )}
@@ -1117,7 +1117,7 @@ export default function CourseContent({}: CourseContentProps) {
                 }
               }}
             >
-              <Edit className="h-4 w-4 mr-1" />
+              <Edit className="mr-1 h-4 w-4" />
               Chỉnh sửa
             </Button>
           </DialogFooter>

@@ -1,14 +1,6 @@
 import api from "@/lib/api";
 import type { IUser } from "@/types/user.type";
 
-interface IRequest {
-  email?: string;
-  name?: string;
-  password?: string;
-  phoneNumber?: string;
-  role?: string;
-}
-
 interface IResponse {
   status: number;
   message: string;
@@ -31,8 +23,8 @@ function toUser(data: IResponse): IUser {
   };
 }
 
-export async function updateProfileApi(payload: IRequest) {
-  const res = await api.put<IResponse>("users/me", payload);
+export async function authApi() {
+  const res = await api.get<IResponse>("users/me");
 
   return {
     ...res.data,

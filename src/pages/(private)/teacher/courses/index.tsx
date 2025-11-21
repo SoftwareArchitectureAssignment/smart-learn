@@ -28,9 +28,9 @@ export default function Courses() {
       <main className="flex-1 overflow-auto">
         <div className="p-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Khóa học</h1>
+              <h1 className="mb-2 text-3xl font-bold text-gray-900">Khóa học</h1>
               <p className="text-gray-600">Quản lý và theo dõi tất cả các khóa học</p>
             </div>
             <Button className="flex items-center gap-2">
@@ -40,7 +40,7 @@ export default function Courses() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardDescription>Tổng khóa học</CardDescription>
@@ -72,17 +72,17 @@ export default function Courses() {
           </div>
 
           {/* Course List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {mockCourses.map((course) => (
-              <Card key={course.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+              <Card key={course.id} className="overflow-hidden transition-shadow hover:shadow-lg">
                 <div className="relative h-48 w-full overflow-hidden bg-gray-200">
                   <img
                     src={course.thumbnail}
                     alt={course.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                   />
                   <span
-                    className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold ${getLevelColor(
+                    className={`absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-semibold ${getLevelColor(
                       course.level,
                     )}`}
                   >
@@ -90,13 +90,13 @@ export default function Courses() {
                   </span>
                 </div>
                 <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                  <div className="mb-2 flex items-start justify-between">
+                    <span className="rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600">
                       {course.category}
                     </span>
                     <span className="text-lg font-bold text-gray-900">${course.price}</span>
                   </div>
-                  <CardTitle className="text-xl line-clamp-2">{course.title}</CardTitle>
+                  <CardTitle className="line-clamp-2 text-xl">{course.title}</CardTitle>
                   <CardDescription className="line-clamp-2">{course.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -118,10 +118,10 @@ export default function Courses() {
                       </div>
                       <div className="flex items-center gap-1">
                         <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-green-600 font-medium">{course.status}</span>
+                        <span className="font-medium text-green-600">{course.status}</span>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-600 pt-2 border-t">
+                    <div className="border-t pt-2 text-sm text-gray-600">
                       <span className="font-medium">Giảng viên:</span> {course.instructor}
                     </div>
                     <div className="flex gap-2 pt-2">

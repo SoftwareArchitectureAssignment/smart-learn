@@ -163,13 +163,13 @@ export default function Reports() {
       <main className="flex-1 overflow-auto">
         <div className="p-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Sự kiện & Deadline</h1>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900">Sự kiện & Deadline</h1>
             <p className="text-gray-600">Theo dõi các quiz và bài tập sắp tới hạn của bạn</p>
           </div>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="hover:shadow-md transition-shadow">
+          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+            <Card className="transition-shadow hover:shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">Tổng số sự kiện</CardTitle>
               </CardHeader>
@@ -178,7 +178,7 @@ export default function Reports() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow">
+            <Card className="transition-shadow hover:shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">Sắp tới</CardTitle>
               </CardHeader>
@@ -187,7 +187,7 @@ export default function Reports() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow">
+            <Card className="transition-shadow hover:shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">Sắp đến hạn</CardTitle>
               </CardHeader>
@@ -196,7 +196,7 @@ export default function Reports() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow">
+            <Card className="transition-shadow hover:shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">Quá hạn</CardTitle>
               </CardHeader>
@@ -207,13 +207,13 @@ export default function Reports() {
           </div>
 
           {/* Filters */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+          <div className="mb-6 rounded-lg border bg-white p-4 shadow-sm">
             <div className="flex flex-wrap gap-4">
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">Loại:</span>
                 <button
                   onClick={() => setFilter("all")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     filter === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -221,7 +221,7 @@ export default function Reports() {
                 </button>
                 <button
                   onClick={() => setFilter("quiz")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     filter === "quiz" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -229,7 +229,7 @@ export default function Reports() {
                 </button>
                 <button
                   onClick={() => setFilter("assignment")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     filter === "assignment" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -239,11 +239,11 @@ export default function Reports() {
 
               <div className="h-6 w-px bg-gray-300" />
 
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">Trạng thái:</span>
                 <button
                   onClick={() => setStatusFilter("all")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     statusFilter === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -251,7 +251,7 @@ export default function Reports() {
                 </button>
                 <button
                   onClick={() => setStatusFilter("upcoming")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     statusFilter === "upcoming"
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -261,7 +261,7 @@ export default function Reports() {
                 </button>
                 <button
                   onClick={() => setStatusFilter("due-soon")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     statusFilter === "due-soon"
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -271,7 +271,7 @@ export default function Reports() {
                 </button>
                 <button
                   onClick={() => setStatusFilter("overdue")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     statusFilter === "overdue"
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -286,8 +286,8 @@ export default function Reports() {
           {/* Events List */}
           <div className="space-y-4">
             {filteredEvents.length === 0 ? (
-              <div className="bg-white p-12 rounded-lg shadow-sm border text-center">
-                <div className="text-gray-400 mb-2">
+              <div className="rounded-lg border bg-white p-12 text-center shadow-sm">
+                <div className="mb-2 text-gray-400">
                   <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
@@ -301,36 +301,36 @@ export default function Reports() {
               </div>
             ) : (
               filteredEvents.map((event) => (
-                <Card key={event.id} className="hover:shadow-md transition-all hover:-translate-y-1">
+                <Card key={event.id} className="transition-all hover:-translate-y-1 hover:shadow-md">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="mb-3 flex items-center gap-3">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
+                            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusColor(
                               event.status,
                             )}`}
                           >
                             {getStatusText(event.status)}
                           </span>
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${
                               event.type === "quiz"
-                                ? "bg-purple-100 text-purple-800 border-purple-200"
-                                : "bg-green-100 text-green-800 border-green-200"
+                                ? "border-purple-200 bg-purple-100 text-purple-800"
+                                : "border-green-200 bg-green-100 text-green-800"
                             }`}
                           >
                             {event.type === "quiz" ? "📝 Quiz" : "📋 Bài tập"}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                        <h3 className="mb-2 text-xl font-bold text-gray-900">{event.title}</h3>
 
-                        <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                        <p className="mb-3 text-sm text-gray-600">{event.description}</p>
 
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -344,7 +344,7 @@ export default function Reports() {
                           <div className="h-4 w-px bg-gray-300" />
 
                           <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -357,8 +357,8 @@ export default function Reports() {
                         </div>
                       </div>
 
-                      <div className="text-right ml-6">
-                        <div className="text-sm text-gray-500 mb-1">
+                      <div className="ml-6 text-right">
+                        <div className="mb-1 text-sm text-gray-500">
                           {event.dueDate.toLocaleDateString("vi-VN", {
                             weekday: "short",
                             year: "numeric",
@@ -373,7 +373,7 @@ export default function Reports() {
                           })}
                         </div>
                         <div
-                          className={`text-sm font-semibold mt-1 ${
+                          className={`mt-1 text-sm font-semibold ${
                             event.status === "overdue"
                               ? "text-red-600"
                               : event.status === "due-soon"

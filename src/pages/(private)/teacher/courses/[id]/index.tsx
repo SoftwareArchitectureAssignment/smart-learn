@@ -17,7 +17,7 @@ export default function CourseDetail() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Không tìm thấy khóa học</h2>
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Không tìm thấy khóa học</h2>
           <button onClick={() => navigate("/courses")} className="text-blue-600 hover:text-blue-700">
             Quay lại danh sách khóa học
           </button>
@@ -58,23 +58,23 @@ export default function CourseDetail() {
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="bg-white border-b sticky top-0 z-10">
+        <div className="sticky top-0 z-10 border-b bg-white">
           <div className="px-8 py-4">
             <button
               onClick={() => navigate("/courses")}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+              className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm font-medium">Quay lại danh sách khóa học</span>
             </button>
 
-            <div className="flex items-start justify-between mb-4">
+            <div className="mb-4 flex items-start justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">{course.title}</h1>
+                <h1 className="mb-1 text-2xl font-bold text-gray-900">{course.title}</h1>
                 <p className="text-sm text-gray-600">{course.description}</p>
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
                   course.status === "Active"
                     ? "bg-green-100 text-green-800"
                     : course.status === "Draft"
@@ -94,10 +94,10 @@ export default function CourseDetail() {
                   <button
                     key={tab.path}
                     onClick={() => navigate(tab.path)}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                    className={`flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
                       tab.active
-                        ? "bg-gray-50 text-blue-600 border-b-2 border-blue-600"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "border-b-2 border-blue-600 bg-gray-50 text-blue-600"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                   >
                     <Icon className="h-4 w-4" />

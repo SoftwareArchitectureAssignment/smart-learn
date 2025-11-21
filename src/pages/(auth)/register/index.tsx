@@ -74,9 +74,9 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center mb-8">
+        <div className="mb-8 flex items-center justify-center">
           <Link to="/" className="flex items-center space-x-2">
             <img src="/logo.svg" alt="Smart Learn" className="h-10 w-10" />
             <span className="text-3xl font-bold text-gray-900">Smart Learn</span>
@@ -171,9 +171,9 @@ export default function Register() {
               <Button type="submit" className="w-full">
                 Create account
               </Button>
-              <div className="text-sm text-center text-gray-600">
+              <div className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link to="/login" className="text-indigo-600 hover:underline font-semibold">
+                <Link to="/login" className="font-semibold text-indigo-600 hover:underline">
                   Sign in
                 </Link>
               </div>

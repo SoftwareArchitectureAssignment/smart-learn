@@ -1,21 +1,23 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { z } from "zod";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 8 characters"),
 });
 
 export default function Login() {
+  const { login, isLoggingIn } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
 
   const validateForm = () => {
     try {
@@ -39,23 +41,20 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    // Handle login logic here
-    console.log("Login:", { email, password });
-    // After successful login, redirect to dashboard
-    navigate("/dashboard");
+    await login({ email, password });
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center mb-8">
+        <div className="mb-8 flex items-center justify-center">
           <Link to="/" className="flex items-center space-x-2">
             <img src="/logo.svg" alt="Smart Learn" className="h-10 w-10" />
             <span className="text-3xl font-bold text-gray-900">Smart Learn</span>
@@ -104,9 +103,9 @@ export default function Login() {
               <Button type="submit" className="w-full">
                 Sign in
               </Button>
-              <div className="text-sm text-center text-gray-600">
+              <div className="text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link to="/register" className="text-indigo-600 hover:underline font-semibold">
+                <Link to="/register" className="font-semibold text-indigo-600 hover:underline">
                   Sign up
                 </Link>
               </div>

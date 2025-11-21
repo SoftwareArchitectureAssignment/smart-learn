@@ -52,7 +52,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
       <div className="grid gap-6">
         {/* Basic Information */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Thông tin cơ bản</h2>
+          <h2 className="mb-6 text-xl font-bold text-gray-900">Thông tin cơ bản</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="title">Tên khóa học *</Label>
@@ -71,7 +71,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
                 value={formData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="Mô tả về khóa học"
-                className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="min-h-[100px] w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
 
@@ -130,7 +130,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
 
         {/* Pricing & Media */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Giá & Hình ảnh</h2>
+          <h2 className="mb-6 text-xl font-bold text-gray-900">Giá & Hình ảnh</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="price">Giá (USD)</Label>
@@ -156,11 +156,11 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
             {formData.thumbnail && (
               <div className="mt-2">
                 <Label>Xem trước</Label>
-                <div className="mt-2 relative h-48 w-full rounded-lg overflow-hidden border">
+                <div className="relative mt-2 h-48 w-full overflow-hidden rounded-lg border">
                   <img
                     src={formData.thumbnail}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = "https://via.placeholder.com/400x250?text=Invalid+Image";
                     }}
@@ -173,7 +173,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
 
         {/* Status & Visibility */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Trạng thái & Hiển thị</h2>
+          <h2 className="mb-6 text-xl font-bold text-gray-900">Trạng thái & Hiển thị</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="status">Trạng thái khóa học</Label>
@@ -190,7 +190,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
                   <SelectItem value="Completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-sm text-gray-600">
                 {formData.status === "Active" && "Khóa học đang hiển thị công khai"}
                 {formData.status === "Draft" && "Khóa học đang ở chế độ nháp"}
                 {formData.status === "Completed" && "Khóa học đã hoàn thành"}
@@ -215,24 +215,24 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
 
         {/* Course Statistics */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Thống kê</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="mb-6 text-xl font-bold text-gray-900">Thống kê</h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Học viên</p>
+              <p className="mb-1 text-sm text-gray-600">Học viên</p>
               <p className="text-2xl font-bold text-gray-900">{course.students.toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Đánh giá</p>
+              <p className="mb-1 text-sm text-gray-600">Đánh giá</p>
               <p className="text-2xl font-bold text-gray-900">{course.rating}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Doanh thu</p>
+              <p className="mb-1 text-sm text-gray-600">Doanh thu</p>
               <p className="text-2xl font-bold text-gray-900">${(course.students * course.price).toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Trạng thái</p>
+              <p className="mb-1 text-sm text-gray-600">Trạng thái</p>
               <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
                   course.status === "Active"
                     ? "bg-green-100 text-green-800"
                     : course.status === "Draft"
@@ -247,9 +247,9 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
         </Card>
 
         {/* Danger Zone */}
-        <Card className="p-6 border-red-200">
-          <h2 className="text-xl font-bold text-red-600 mb-4">Vùng nguy hiểm</h2>
-          <p className="text-sm text-gray-600 mb-4">
+        <Card className="border-red-200 p-6">
+          <h2 className="mb-4 text-xl font-bold text-red-600">Vùng nguy hiểm</h2>
+          <p className="mb-4 text-sm text-gray-600">
             Xóa khóa học này sẽ xóa tất cả nội dung, học viên và dữ liệu liên quan. Hành động này không thể hoàn tác.
           </p>
           <Button variant="destructive" className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function CourseSettings({ course }: CourseSettingsProps) {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between sticky bottom-0 bg-white border-t p-4 -mx-6 -mb-6">
+        <div className="sticky bottom-0 -mx-6 -mb-6 flex items-center justify-between border-t bg-white p-4">
           <Button variant="outline" disabled={!hasChanges}>
             Hủy thay đổi
           </Button>
