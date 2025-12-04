@@ -13,20 +13,21 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String?
-  email          String          @unique
-  emailVerified  DateTime?
-  image          String?
-  password       String?
-  role           String          @default("student")
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  accounts       Account[]
-  sessions       Session[]
-  courseTeachers CourseTeacher[]
-  enrollments    Enrollment[]
-  quizAttempts   QuizAttempt[]
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String              @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               String              @default("student")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  accounts           Account[]
+  sessions           Session[]
+  enrollments        Enrollment[]
+  quizAttempts       QuizAttempt[]
+  assessmentAttempts AssessmentAttempt[]
+  learningPaths      LearningPath[]
 }
 
 model Account {
@@ -65,26 +66,16 @@ model VerificationToken {
 }
 
 model Course {
-  id             String          @id @default(cuid())
-  title          String
-  description    String?         @db.Text
-  thumbnail      String?
-  sections       Section[]
-  enrollments    Enrollment[]
-  courseTeachers CourseTeacher[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-}
-
-model CourseTeacher {
-  id        String   @id @default(cuid())
-  courseId  String
-  teacherId String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  addedAt   DateTime @default(now())
-
-  @@unique([courseId, teacherId])
+  id                  String               @id @default(cuid())
+  title               String
+  description         String?              @db.Text
+  thumbnail           String?
+  sections            Section[]
+  enrollments         Enrollment[]
+  topics              CourseTopics[]
+  learningPathCourses LearningPathCourse[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 }
 
 model Enrollment {
@@ -195,4 +186,105 @@ model QuizAttempt {
   answers     Json
   feedback    String?  @db.Text
   attemptedAt DateTime @default(now())
+}
+
+// ============ Topics & Categories ============
+model Topic {
+  id                  String                    @id @default(cuid())
+  name                String                    @unique
+  description         String?                   @db.Text
+  courses             CourseTopics[]
+  assessmentQuestions AssessmentQuestionTopic[]
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+}
+
+model CourseTopics {
+  courseId  String
+  topicId   String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([courseId, topicId])
+}
+
+// ============ Assessment & Learning Path ============
+model AssessmentQuestion {
+  id        String                    @id @default(cuid())
+  text      String                    @db.Text
+  options   AssessmentOption[]
+  topics    AssessmentQuestionTopic[]
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @updatedAt
+}
+
+model AssessmentQuestionTopic {
+  questionId String
+  topicId    String
+  question   AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  topic      Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt  DateTime           @default(now())
+
+  @@id([questionId, topicId])
+}
+
+model AssessmentOption {
+  id         String             @id @default(cuid())
+  questionId String
+  question   AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean            @default(false)
+  order      Int
+}
+
+model AssessmentAttempt {
+  id             String        @id @default(cuid())
+  studentId      String
+  student        User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topicId        String
+  totalQuestions Int
+  score          Int
+  totalScore     Int
+  answers        Json
+  attemptedAt    DateTime      @default(now())
+  learningPath   LearningPath?
+}
+
+model LearningPath {
+  id                  String               @id @default(cuid())
+  assessmentAttemptId String               @unique
+  assessmentAttempt   AssessmentAttempt    @relation(fields: [assessmentAttemptId], references: [id], onDelete: Cascade)
+  studentId           String
+  student             User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title               String
+  description         String?              @db.Text
+  status              LearningPathStatus   @default(NOT_STARTED)
+  isEnrolled          Boolean              @default(false)
+  enrolledAt          DateTime?
+  courses             LearningPathCourse[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model LearningPathCourse {
+  id             String       @id @default(cuid())
+  learningPathId String
+  learningPath   LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  courseId       String
+  course         Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order          Int
+  reason         String?      @db.Text
+  isCompleted    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@unique([learningPathId, courseId])
+}
+
+// ============ Enums ============
+enum LearningPathStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
 }

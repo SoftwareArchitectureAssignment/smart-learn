@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import TanstackProvider from "@/components/providers/tanstack-provider";
 import AuthProvider from "@/components/providers/auth-provider";
 
 const geistSans = Geist({
@@ -17,9 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Smart learn",
-  icons: {
-    icon: "/logo.png",
-  },
+  icons: "logo.png",
 };
 
 export default function RootLayout({
@@ -30,9 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <TanstackProvider>{children}</TanstackProvider>
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

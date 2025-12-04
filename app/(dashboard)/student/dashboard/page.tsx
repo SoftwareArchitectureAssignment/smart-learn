@@ -8,13 +8,6 @@ async function getCoursesData(studentId: string) {
   // Get all available courses
   const allCourses = await prisma.course.findMany({
     include: {
-      teacher: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      },
       _count: {
         select: {
           enrollments: true,

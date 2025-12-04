@@ -1,36 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 
-interface QuizAttemptDetailClientProps {
-  attempt: any;
+interface Question {
+  id: string;
+  text: string;
+  options: {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
 }
 
-export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProps) {
-  const { quiz } = attempt;
-  const courseId = quiz.content.section.course.id;
-  const percentage = Math.round((attempt.score / attempt.totalScore) * 100);
-  const passed = percentage >= (quiz.passingScore || 0);
-  const answers = attempt.answers as Record<string, string>;
+interface AssessmentReviewClientProps {
+  learningPath: {
+    id: string;
+    title: string;
+    assessmentAttempt: {
+      score: number;
+      totalScore: number;
+      totalQuestions: number;
+      answers: Record<string, string>;
+      topicName: string;
+    };
+  };
+  questions: Question[];
+}
+
+export function AssessmentReviewClient({ learningPath, questions }: AssessmentReviewClientProps) {
+  const { assessmentAttempt } = learningPath;
+  const percentage = Math.round((assessmentAttempt.score / assessmentAttempt.totalScore) * 100);
+  const answers = assessmentAttempt.answers;
+
+  const correctCount = questions.filter((question) => {
+    const selectedOptionId = answers[question.id];
+    const correctOption = question.options.find((opt) => opt.isCorrect);
+    return selectedOptionId === correctOption?.id;
+  }).length;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-4xl">
-        <Link href={`/student/quiz/${quiz.id}/attempts`}>
+        <Link href="/student/learning-paths">
           <Button variant="ghost" size="sm" className="mb-4">
             <ChevronLeft className="mr-1 size-4" />
-            Back to Attempts
+            Back to Learning Paths
           </Button>
         </Link>
 
@@ -39,18 +57,9 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Attempt Details</CardTitle>
-                <CardDescription>{quiz.content.title}</CardDescription>
+                <CardTitle>Assessment Review</CardTitle>
+                <CardDescription>{assessmentAttempt.topicName} Assessment</CardDescription>
               </div>
-              <Badge
-                className={
-                  passed
-                    ? "bg-green-100 text-green-700 hover:bg-green-100"
-                    : "bg-red-100 text-red-700 hover:bg-red-100"
-                }
-              >
-                {passed ? "Passed" : "Failed"}
-              </Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -62,45 +71,27 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold">
-                    {attempt.score}/{attempt.totalScore}
+                    {correctCount}/{assessmentAttempt.totalQuestions}
                   </p>
                   <p className="text-sm text-gray-600">Correct Answers</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold">{quiz.passingScore}%</p>
-                  <p className="text-sm text-gray-600">Passing Score</p>
+                  <p className="text-3xl font-bold">
+                    {assessmentAttempt.score}/{assessmentAttempt.totalScore}
+                  </p>
+                  <p className="text-sm text-gray-600">Points</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Clock className="size-4" />
-                <span>
-                  {format(new Date(attempt.attemptedAt), "MMM dd, yyyy 'at' HH:mm")}
-                </span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Teacher Feedback */}
-        {attempt.feedback && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Teacher Feedback</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose max-w-none whitespace-pre-wrap rounded-lg bg-blue-50 p-4 text-sm">
-                {attempt.feedback}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Questions Review */}
         <div className="space-y-6">
           <h2 className="text-xl font-semibold">Question Review</h2>
-          {quiz.questions.map((question: any, index: number) => {
+          {questions.map((question, index) => {
             const selectedOptionId = answers[question.id];
-            const correctOption = question.options.find((opt: any) => opt.isCorrect);
+            const correctOption = question.options.find((opt) => opt.isCorrect);
             const isCorrect = selectedOptionId === correctOption?.id;
 
             return (
@@ -124,7 +115,7 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {question.options.map((option: any) => {
+                  {question.options.map((option) => {
                     const isSelected = selectedOptionId === option.id;
                     const isCorrectAnswer = option.isCorrect;
 
@@ -135,8 +126,8 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                           isCorrectAnswer
                             ? "border-green-500 bg-green-50"
                             : isSelected
-                            ? "border-red-500 bg-red-50"
-                            : "bg-gray-50"
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-200 bg-white"
                         }`}
                       >
                         <div className="flex size-6 items-center justify-center">
@@ -150,16 +141,8 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{option.text}</p>
-                          {isCorrectAnswer && (
-                            <p className="mt-1 text-sm text-green-700">
-                              ✓ Correct Answer
-                            </p>
-                          )}
-                          {isSelected && !isCorrectAnswer && (
-                            <p className="mt-1 text-sm text-red-700">
-                              ✗ Your Answer
-                            </p>
-                          )}
+                          {isCorrectAnswer && <p className="mt-1 text-sm text-green-700">✓ Correct Answer</p>}
+                          {isSelected && !isCorrectAnswer && <p className="mt-1 text-sm text-red-700">✗ Your Answer</p>}
                         </div>
                       </div>
                     );
@@ -172,13 +155,13 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
 
         {/* Actions */}
         <div className="mt-8 flex gap-3">
-          <Link href={`/student/courses/${courseId}`} className="flex-1">
+          <Link href="/student/learning-paths" className="flex-1">
             <Button variant="outline" className="w-full">
-              Back to Course
+              Back to Learning Paths
             </Button>
           </Link>
-          <Link href={`/student/quiz/${quiz.id}/attempt`} className="flex-1">
-            <Button className="w-full">Retake Quiz</Button>
+          <Link href="/student/learning-paths/assessment" className="flex-1">
+            <Button className="w-full">Take Another Assessment</Button>
           </Link>
         </div>
       </div>

@@ -14,7 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-async function getCourses(teacherId: string) {
+async function getCourses() {
+  // Get all courses for teachers
   const courses = await prisma.course.findMany({
     include: {
       _count: {
@@ -39,7 +40,7 @@ export default async function TeacherCoursesPage() {
     redirect("/login");
   }
 
-  const courses = await getCourses(session.user.id);
+  const courses = await getCourses();
 
   return (
     <div className="p-8">

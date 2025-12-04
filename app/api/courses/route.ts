@@ -18,24 +18,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    // Create course and link teacher in a transaction
-    const course = await prisma.$transaction(async (tx) => {
-      const newCourse = await tx.course.create({
-        data: {
-          title,
-          description: description || null,
-          thumbnail: thumbnail || null,
-        },
-      });
-
-      await tx.courseTeacher.create({
-        data: {
-          courseId: newCourse.id,
-          teacherId: session.user.id,
-        },
-      });
-
-      return newCourse;
+    // Create course
+    const course = await prisma.course.create({
+      data: {
+        title,
+        description: description || null,
+        thumbnail: thumbnail || null,
+      },
     });
 
     return NextResponse.json(course);
@@ -59,31 +48,20 @@ export async function GET(req: Request) {
     let courses;
 
     if (session.user.role === "teacher") {
-      // Get courses where teacher is assigned
-      const courseTeachers = await prisma.courseTeacher.findMany({
-        where: {
-          teacherId: session.user.id,
-        },
+      // Get all courses for teachers
+      courses = await prisma.course.findMany({
         include: {
-          course: {
-            include: {
-              _count: {
-                select: {
-                  enrollments: true,
-                  sections: true,
-                },
-              },
+          _count: {
+            select: {
+              enrollments: true,
+              sections: true,
             },
           },
         },
         orderBy: {
-          course: {
-            updatedAt: "desc",
-          },
+          updatedAt: "desc",
         },
       });
-
-      courses = courseTeachers.map((ct) => ct.course);
     } else {
       // For students, get enrolled courses
       const enrollments = await prisma.enrollment.findMany({
@@ -93,17 +71,6 @@ export async function GET(req: Request) {
         include: {
           course: {
             include: {
-              courseTeachers: {
-                include: {
-                  teacher: {
-                    select: {
-                      name: true,
-                      email: true,
-                    },
-                  },
-                },
-                take: 1,
-              },
               _count: {
                 select: {
                   sections: true,

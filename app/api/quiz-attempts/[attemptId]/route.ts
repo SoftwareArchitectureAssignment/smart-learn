@@ -73,18 +73,6 @@ export async function GET(
       );
     }
 
-    // Verify teacher has access to the course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: attempt.quiz.content.section.course.id,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     return NextResponse.json({
       id: attempt.id,
       student: attempt.student,
@@ -175,18 +163,6 @@ export async function PATCH(
         { error: "Quiz attempt not found" },
         { status: 404 }
       );
-    }
-
-    // Verify teacher has access to the course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: attempt.quiz.content.section.course.id,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Update feedback

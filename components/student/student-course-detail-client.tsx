@@ -327,7 +327,7 @@ export function StudentCourseDetailClient({
                     </CardHeader>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <CardContent className="space-y-6 pt-0">
+                    <CardContent className="space-y-6 pt-4">
                       {section.contents.length === 0 ? (
                         <p className="text-center text-sm text-gray-500 py-4">
                           No content in this section

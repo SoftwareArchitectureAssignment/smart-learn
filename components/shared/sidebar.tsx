@@ -26,7 +26,7 @@ const teacherMenuItems = [
     href: "/teacher/reports",
   },
   {
-    title: "Settings",
+    title: "Assessment",
     icon: Settings,
     href: "/teacher/settings",
   },

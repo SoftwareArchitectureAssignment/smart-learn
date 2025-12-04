@@ -21,17 +21,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId,
-        teacherId: session.user.id,
-      },
+    // Verify course exists
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
     });
 
-    if (!courseTeacher) {
+    if (!course) {
       return NextResponse.json(
-        { error: "Course not found or unauthorized" },
+        { error: "Course not found" },
         { status: 404 }
       );
     }
@@ -80,35 +77,15 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Verify section belongs to teacher's course
-    const section = await prisma.section.findFirst({
-      where: {
-        id,
-      },
-      include: {
-        course: true,
-      },
+    // Verify section exists
+    const section = await prisma.section.findUnique({
+      where: { id },
     });
 
     if (!section) {
       return NextResponse.json(
         { error: "Section not found" },
         { status: 404 }
-      );
-    }
-
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: section.courseId,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
       );
     }
 
@@ -145,35 +122,15 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Verify section belongs to teacher's course
-    const section = await prisma.section.findFirst({
-      where: {
-        id,
-      },
-      include: {
-        course: true,
-      },
+    // Verify section exists
+    const section = await prisma.section.findUnique({
+      where: { id },
     });
 
     if (!section) {
       return NextResponse.json(
         { error: "Section not found" },
         { status: 404 }
-      );
-    }
-
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: section.courseId,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
       );
     }
 

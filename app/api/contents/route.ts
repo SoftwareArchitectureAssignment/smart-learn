@@ -22,35 +22,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify section belongs to teacher's course
-    const section = await prisma.section.findFirst({
-      where: {
-        id: sectionId,
-      },
-      include: {
-        course: true,
-      },
+    // Verify section exists
+    const section = await prisma.section.findUnique({
+      where: { id: sectionId },
     });
 
     if (!section) {
       return NextResponse.json(
         { error: "Section not found" },
         { status: 404 }
-      );
-    }
-
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: section.courseId,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
       );
     }
 
@@ -150,40 +130,16 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Verify content belongs to teacher's course
-    const content = await prisma.content.findFirst({
-      where: {
-        id,
-      },
+    // Verify content exists
+    const content = await prisma.content.findUnique({
+      where: { id },
       include: {
         video: true,
         document: true,
         text: true,
         quiz: true,
-        section: {
-          include: {
-            course: true,
-          },
-        },
       },
     });
-
-    if (content) {
-      // Verify teacher has access to this course
-      const courseTeacher = await prisma.courseTeacher.findFirst({
-        where: {
-          courseId: content.section.course.id,
-          teacherId: session.user.id,
-        },
-      });
-
-      if (!courseTeacher) {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 401 }
-        );
-      }
-    }
 
     if (!content) {
       return NextResponse.json(
@@ -316,39 +272,15 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Verify content belongs to teacher's course
-    const content = await prisma.content.findFirst({
-      where: {
-        id,
-      },
-      include: {
-        section: {
-          include: {
-            course: true,
-          },
-        },
-      },
+    // Verify content exists
+    const content = await prisma.content.findUnique({
+      where: { id },
     });
 
     if (!content) {
       return NextResponse.json(
         { error: "Content not found" },
         { status: 404 }
-      );
-    }
-
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: content.section.course.id,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
       );
     }
 

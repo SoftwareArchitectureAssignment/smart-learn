@@ -53,23 +53,7 @@ export async function POST(request: NextRequest) {
         courseId: courseId,
       },
       include: {
-        course: {
-          include: {
-            courseTeachers: {
-              include: {
-                teacher: {
-                  select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    image: true,
-                  },
-                },
-              },
-              take: 1,
-            },
-          },
-        },
+        course: true,
       },
     });
 

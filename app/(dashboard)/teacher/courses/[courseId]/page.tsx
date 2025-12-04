@@ -4,36 +4,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { CourseDetailTabs } from "@/components/teacher/course-detail-tabs";
 
-async function getCourseDetails(courseId: string, teacherId: string) {
-  // Verify teacher has access to this course
-  const courseTeacher = await prisma.courseTeacher.findFirst({
-    where: {
-      courseId,
-      teacherId,
-    },
-  });
-
-  if (!courseTeacher) {
-    return null;
-  }
-
+async function getCourseDetails(courseId: string) {
   const course = await prisma.course.findUnique({
     where: {
       id: courseId,
     },
     include: {
-      courseTeachers: {
-        include: {
-          teacher: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
-        },
-      },
       sections: {
         include: {
           contents: {
@@ -86,7 +62,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ c
   }
 
   const { courseId } = await params;
-  const course = await getCourseDetails(courseId, session.user.id);
+  const course = await getCourseDetails(courseId);
 
   if (!course) {
     redirect("/teacher/courses");

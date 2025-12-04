@@ -53,18 +53,6 @@ export async function POST(
       );
     }
 
-    // Verify teacher has access to the course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId: attempt.quiz.content.section.course.id,
-        teacherId: session.user.id,
-      },
-    });
-
-    if (!courseTeacher) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     // Calculate score percentage
     const percentage = Math.round((attempt.score / attempt.totalScore) * 100);
 

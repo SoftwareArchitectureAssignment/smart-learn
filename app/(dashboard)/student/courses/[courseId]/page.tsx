@@ -23,13 +23,6 @@ async function getCourseDetails(courseId: string, studentId: string) {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
     include: {
-      teacher: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      },
       sections: {
         orderBy: { order: "asc" },
         include: {
@@ -71,7 +64,17 @@ async function getCourseDetails(courseId: string, studentId: string) {
     },
   });
 
-  return course;
+  if (!course) {
+    return null;
+  }
+
+  // Add placeholder teacher data since schema doesn't have teacher relation
+  const transformedCourse = {
+    ...course,
+    teacher: { id: '', name: 'Instructor', email: '' },
+  };
+
+  return transformedCourse;
 }
 
 export default async function StudentCourseDetailPage({

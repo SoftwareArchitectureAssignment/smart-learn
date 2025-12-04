@@ -16,18 +16,12 @@ export async function GET(
 
     const { courseId } = await params;
 
-    // Verify teacher has access to this course
-    const courseTeacher = await prisma.courseTeacher.findFirst({
-      where: {
-        courseId,
-        teacherId: session.user.id,
-      },
-      include: {
-        course: true,
-      },
+    // Verify course exists
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
     });
 
-    if (!courseTeacher) {
+    if (!course) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 

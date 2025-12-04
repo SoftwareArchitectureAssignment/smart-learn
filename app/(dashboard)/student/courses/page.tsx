@@ -12,13 +12,6 @@ async function getEnrolledCourses(studentId: string) {
     include: {
       course: {
         include: {
-          teacher: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
           _count: {
             select: {
               enrollments: true,
