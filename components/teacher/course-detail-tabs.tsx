@@ -7,14 +7,7 @@ import { CourseContentClient } from "./course-content-client";
 import { CourseMembersClient } from "./course-members-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  BookOpen,
-  Users,
-  ArrowLeft,
-  Pencil,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
+import { BookOpen, Users, ArrowLeft, Pencil, MoreVertical, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,13 +36,9 @@ export function CourseDetailTabs({ course }: CourseDetailTabsProps) {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-            <p className="mt-2 text-gray-600">
-              {course.description || "Chưa có mô tả"}
-            </p>
+            <p className="mt-2 text-gray-600">{course.description || "Chưa có mô tả"}</p>
             <div className="mt-4 flex items-center gap-4">
-              <Badge
-                variant={course._count.enrollments > 0 ? "default" : "secondary"}
-              >
+              <Badge variant={course._count.enrollments > 0 ? "default" : "secondary"}>
                 {course._count.enrollments > 0 ? "Đang hoạt động" : "Nháp"}
               </Badge>
               <div className="flex items-center gap-1 text-sm text-gray-600">

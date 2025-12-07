@@ -16,10 +16,7 @@ export async function POST(request: Request) {
     const { title, type, sectionId, data } = body;
 
     if (!title || !type || !sectionId) {
-      return NextResponse.json(
-        { error: "Title, type, and sectionId are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Title, type, and sectionId are required" }, { status: 400 });
     }
 
     // Verify section exists
@@ -28,10 +25,7 @@ export async function POST(request: Request) {
     });
 
     if (!section) {
-      return NextResponse.json(
-        { error: "Section not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Section not found" }, { status: 404 });
     }
 
     // Get the highest order number
@@ -49,46 +43,50 @@ export async function POST(request: Request) {
         type: type as ContentType,
         sectionId,
         order,
-        ...(type === "VIDEO" && data?.url && {
-          video: {
-            create: {
-              url: data.url,
-              duration: data.duration || null,
+        ...(type === "VIDEO" &&
+          data?.url && {
+            video: {
+              create: {
+                url: data.url,
+                duration: data.duration || null,
+              },
             },
-          },
-        }),
-        ...(type === "DOCUMENT" && data?.url && {
-          document: {
-            create: {
-              url: data.url,
-              fileType: data.fileType || null,
-              fileSize: data.fileSize || null,
+          }),
+        ...(type === "DOCUMENT" &&
+          data?.url && {
+            document: {
+              create: {
+                url: data.url,
+                fileType: data.fileType || null,
+                fileSize: data.fileSize || null,
+              },
             },
-          },
-        }),
-        ...(type === "TEXT" && data?.body && {
-          text: {
-            create: {
-              body: data.body,
+          }),
+        ...(type === "TEXT" &&
+          data?.body && {
+            text: {
+              create: {
+                body: data.body,
+              },
             },
-          },
-        }),
+          }),
         ...(type === "QUIZ" && {
           quiz: {
             create: {
               passingScore: data?.passingScore || 70,
               questions: {
-                create: data?.questions?.map((q: any) => ({
-                  text: q.text,
-                  order: q.order,
-                  options: {
-                    create: q.options.map((opt: any) => ({
-                      text: opt.text,
-                      isCorrect: opt.isCorrect,
-                      order: opt.order,
-                    })),
-                  },
-                })) || [],
+                create:
+                  data?.questions?.map((q: any) => ({
+                    text: q.text,
+                    order: q.order,
+                    options: {
+                      create: q.options.map((opt: any) => ({
+                        text: opt.text,
+                        isCorrect: opt.isCorrect,
+                        order: opt.order,
+                      })),
+                    },
+                  })) || [],
               },
             },
           },
@@ -105,10 +103,7 @@ export async function POST(request: Request) {
     return NextResponse.json(content);
   } catch (error) {
     console.error("Error creating content:", error);
-    return NextResponse.json(
-      { error: "Failed to create content" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create content" }, { status: 500 });
   }
 }
 
@@ -124,10 +119,7 @@ export async function PATCH(request: Request) {
     const { id, title, data } = body;
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Content ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Content ID is required" }, { status: 400 });
     }
 
     // Verify content exists
@@ -142,10 +134,7 @@ export async function PATCH(request: Request) {
     });
 
     if (!content) {
-      return NextResponse.json(
-        { error: "Content not found or unauthorized" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Content not found or unauthorized" }, { status: 404 });
     }
 
     // Handle quiz questions update separately
@@ -174,7 +163,7 @@ export async function PATCH(request: Request) {
       for (let i = 0; i < data.questions.length; i++) {
         const questionData = data.questions[i];
         const question = newQuestions[i];
-        
+
         await prisma.option.createMany({
           data: questionData.options.map((opt: any) => ({
             questionId: question.id,
@@ -191,35 +180,43 @@ export async function PATCH(request: Request) {
       where: { id },
       data: {
         ...(title && { title }),
-        ...(content.type === "VIDEO" && content.video && data && {
-          video: {
-            update: {
-              ...(data.url && { url: data.url }),
-              ...(data.duration !== undefined && { duration: data.duration }),
+        ...(content.type === "VIDEO" &&
+          content.video &&
+          data && {
+            video: {
+              update: {
+                ...(data.url && { url: data.url }),
+                ...(data.duration !== undefined && { duration: data.duration }),
+              },
             },
-          },
-        }),
-        ...(content.type === "DOCUMENT" && content.document && data && {
-          document: {
-            update: {
-              ...(data.url && { url: data.url }),
+          }),
+        ...(content.type === "DOCUMENT" &&
+          content.document &&
+          data && {
+            document: {
+              update: {
+                ...(data.url && { url: data.url }),
+              },
             },
-          },
-        }),
-        ...(content.type === "TEXT" && content.text && data?.body && {
-          text: {
-            update: {
-              body: data.body,
+          }),
+        ...(content.type === "TEXT" &&
+          content.text &&
+          data?.body && {
+            text: {
+              update: {
+                body: data.body,
+              },
             },
-          },
-        }),
-        ...(content.type === "QUIZ" && content.quiz && data && {
-          quiz: {
-            update: {
-              passingScore: data.passingScore,
+          }),
+        ...(content.type === "QUIZ" &&
+          content.quiz &&
+          data && {
+            quiz: {
+              update: {
+                passingScore: data.passingScore,
+              },
             },
-          },
-        }),
+          }),
       },
       include: {
         video: true,
@@ -247,10 +244,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(updatedContent);
   } catch (error) {
     console.error("Error updating content:", error);
-    return NextResponse.json(
-      { error: "Failed to update content" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update content" }, { status: 500 });
   }
 }
 
@@ -266,10 +260,7 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Content ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Content ID is required" }, { status: 400 });
     }
 
     // Verify content exists
@@ -278,10 +269,7 @@ export async function DELETE(request: Request) {
     });
 
     if (!content) {
-      return NextResponse.json(
-        { error: "Content not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Content not found" }, { status: 404 });
     }
 
     await prisma.content.delete({
@@ -291,9 +279,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting content:", error);
-    return NextResponse.json(
-      { error: "Failed to delete content" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete content" }, { status: 500 });
   }
 }

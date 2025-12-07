@@ -3,10 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ courseId: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ courseId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -98,13 +95,7 @@ export async function GET(
             : 0;
 
         const bestScore =
-          totalAttempts > 0
-            ? Math.max(
-                ...attempts.map(
-                  (attempt) => (attempt.score / attempt.totalScore) * 100
-                )
-              )
-            : 0;
+          totalAttempts > 0 ? Math.max(...attempts.map((attempt) => (attempt.score / attempt.totalScore) * 100)) : 0;
 
         return {
           student: enrollment.student,
@@ -124,15 +115,12 @@ export async function GET(
             feedback: attempt.feedback,
           })),
         };
-      })
+      }),
     );
 
     return NextResponse.json(studentsWithStats);
   } catch (error) {
     console.error("Error fetching course members:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

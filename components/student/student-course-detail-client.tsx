@@ -16,27 +16,15 @@ import {
   History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 
 interface StudentCourseDetailClientProps {
   course: any;
 }
 
-export function StudentCourseDetailClient({
-  course,
-}: StudentCourseDetailClientProps) {
+export function StudentCourseDetailClient({ course }: StudentCourseDetailClientProps) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     // Open all sections by default
     const initialState: Record<string, boolean> = {};
@@ -91,10 +79,7 @@ export function StudentCourseDetailClient({
     switch (content.type) {
       case "VIDEO":
         return (
-          <Collapsible
-            open={openContents[content.id]}
-            onOpenChange={() => toggleContent(content.id)}
-          >
+          <Collapsible open={openContents[content.id]} onOpenChange={() => toggleContent(content.id)}>
             <div className="rounded-lg border">
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4 hover:bg-gray-50">
                 <div className="flex items-center gap-3">
@@ -110,22 +95,14 @@ export function StudentCourseDetailClient({
                 </div>
                 <div className="flex items-center gap-2">
                   {getContentTypeBadge(content.type)}
-                  {openContents[content.id] ? (
-                    <ChevronDown className="size-5" />
-                  ) : (
-                    <ChevronRight className="size-5" />
-                  )}
+                  {openContents[content.id] ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="border-t p-4">
                   {content.video?.url && (
                     <div className="aspect-video overflow-hidden rounded-lg bg-black">
-                      <video
-                        src={content.video.url}
-                        controls
-                        className="size-full"
-                      >
+                      <video src={content.video.url} controls className="size-full">
                         Your browser does not support the video tag.
                       </video>
                     </div>
@@ -138,39 +115,24 @@ export function StudentCourseDetailClient({
 
       case "DOCUMENT":
         return (
-          <Collapsible
-            open={openContents[content.id]}
-            onOpenChange={() => toggleContent(content.id)}
-          >
+          <Collapsible open={openContents[content.id]} onOpenChange={() => toggleContent(content.id)}>
             <div className="rounded-lg border">
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4 hover:bg-gray-50">
                 <div className="flex items-center gap-3">
                   {getContentIcon(content.type)}
                   <div className="text-left">
                     <h3 className="font-semibold">{content.title}</h3>
-                    {content.document?.fileType && (
-                      <p className="text-sm text-gray-600">
-                        {content.document.fileType}
-                      </p>
-                    )}
+                    {content.document?.fileType && <p className="text-sm text-gray-600">{content.document.fileType}</p>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {getContentTypeBadge(content.type)}
-                  {openContents[content.id] ? (
-                    <ChevronDown className="size-5" />
-                  ) : (
-                    <ChevronRight className="size-5" />
-                  )}
+                  {openContents[content.id] ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="border-t p-4">
-                  <a
-                    href={content.document?.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={content.document?.url} target="_blank" rel="noopener noreferrer">
                     <Button className="w-full">Open Document</Button>
                   </a>
                 </div>
@@ -191,7 +153,7 @@ export function StudentCourseDetailClient({
             </div>
             <div className="prose max-w-none rounded-lg bg-gray-50 p-4">
               <div
-                className="whitespace-pre-wrap text-sm"
+                className="text-sm whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{
                   __html: content.text?.body || "",
                 }}
@@ -238,9 +200,7 @@ export function StudentCourseDetailClient({
                   </Link>
                 )}
                 <Link href={`/student/quiz/${content.quiz.id}/attempt`}>
-                  <Button>
-                    Attempt Quiz
-                  </Button>
+                  <Button>Attempt Quiz</Button>
                 </Link>
               </div>
             </div>
@@ -263,24 +223,16 @@ export function StudentCourseDetailClient({
               Back to My Courses
             </Button>
           </Link>
-          
+
           <Card>
             <CardHeader>
               {course.thumbnail && (
                 <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gray-100">
-                  <img
-                    src={course.thumbnail}
-                    alt={course.title}
-                    className="size-full object-cover"
-                  />
+                  <img src={course.thumbnail} alt={course.title} className="size-full object-cover" />
                 </div>
               )}
               <CardTitle className="text-3xl">{course.title}</CardTitle>
-              {course.description && (
-                <CardDescription className="mt-2 text-base">
-                  {course.description}
-                </CardDescription>
-              )}
+              {course.description && <CardDescription className="mt-2 text-base">{course.description}</CardDescription>}
               <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <User className="size-4" />
@@ -301,9 +253,7 @@ export function StudentCourseDetailClient({
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                 <BookOpen className="mb-4 size-16 text-gray-400" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  No content available yet
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900">No content available yet</h3>
                 <p className="mt-2 text-sm text-gray-600">
                   The instructor hasn't added any content to this course yet.
                 </p>
@@ -312,10 +262,7 @@ export function StudentCourseDetailClient({
           ) : (
             course.sections.map((section: any) => (
               <Card key={section.id}>
-                <Collapsible
-                  open={openSections[section.id]}
-                  onOpenChange={() => toggleSection(section.id)}
-                >
+                <Collapsible open={openSections[section.id]} onOpenChange={() => toggleSection(section.id)}>
                   <CollapsibleTrigger className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between hover:bg-gray-50">
                       <CardTitle className="text-xl">{section.title}</CardTitle>
@@ -329,9 +276,7 @@ export function StudentCourseDetailClient({
                   <CollapsibleContent>
                     <CardContent className="space-y-6 pt-4">
                       {section.contents.length === 0 ? (
-                        <p className="text-center text-sm text-gray-500 py-4">
-                          No content in this section
-                        </p>
+                        <p className="py-4 text-center text-sm text-gray-500">No content in this section</p>
                       ) : (
                         section.contents.map((content: any) => (
                           <div key={content.id} className="border-b pb-6 last:border-b-0 last:pb-0">

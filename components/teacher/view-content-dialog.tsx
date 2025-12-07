@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X, PlayCircle, FileText as FileTextIcon, AlignLeft, ClipboardList } from "lucide-react";
@@ -44,16 +38,12 @@ const getContentTypeBadge = (type: string) => {
   return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800";
 };
 
-export function ViewContentDialog({
-  open,
-  onOpenChange,
-  content,
-}: ViewContentDialogProps) {
+export function ViewContentDialog({ open, onOpenChange, content }: ViewContentDialogProps) {
   if (!content) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
             {getContentIcon(content.type)}
@@ -77,7 +67,8 @@ export function ViewContentDialog({
               </div>
               {content.video.duration && (
                 <p className="text-sm text-gray-600">
-                  Duration: {Math.floor(content.video.duration / 60)}:{String(content.video.duration % 60).padStart(2, '0')}
+                  Duration: {Math.floor(content.video.duration / 60)}:
+                  {String(content.video.duration % 60).padStart(2, "0")}
                 </p>
               )}
             </div>
@@ -86,9 +77,9 @@ export function ViewContentDialog({
           {/* Document Content */}
           {content.type === "DOCUMENT" && content.document && (
             <div className="space-y-3">
-              <div className="flex flex-col items-center justify-center rounded-lg border p-8 bg-gray-50">
-                <FileTextIcon className="size-16 text-blue-600 mb-3" />
-                <p className="text-sm font-medium text-gray-700 mb-2">Document File</p>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-gray-50 p-8">
+                <FileTextIcon className="mb-3 size-16 text-blue-600" />
+                <p className="mb-2 text-sm font-medium text-gray-700">Document File</p>
                 <a
                   href={content.document.url}
                   target="_blank"
@@ -110,10 +101,8 @@ export function ViewContentDialog({
           {/* Text Content */}
           {content.type === "TEXT" && content.text && (
             <div className="space-y-3">
-              <div className="rounded-lg border p-4 bg-gray-50">
-                <div className="whitespace-pre-wrap text-sm text-gray-700">
-                  {content.text.body}
-                </div>
+              <div className="rounded-lg border bg-gray-50 p-4">
+                <div className="text-sm whitespace-pre-wrap text-gray-700">{content.text.body}</div>
               </div>
             </div>
           )}
@@ -121,38 +110,36 @@ export function ViewContentDialog({
           {/* Quiz Content */}
           {content.type === "QUIZ" && content.quiz && (
             <div className="space-y-4">
-              <div className="rounded-lg border p-4 bg-blue-50">
+              <div className="rounded-lg border bg-blue-50 p-4">
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">Passing Score:</span> {content.quiz.passingScore}%
                 </p>
-                <p className="text-sm text-gray-700 mt-1">
+                <p className="mt-1 text-sm text-gray-700">
                   <span className="font-medium">Questions:</span> {content.quiz.questions?.length || 0}
                 </p>
               </div>
 
               {content.quiz.questions && content.quiz.questions.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-sm">Questions:</h4>
+                  <h4 className="text-sm font-semibold">Questions:</h4>
                   {content.quiz.questions.map((question: any, qIndex: number) => (
-                    <div key={question.id} className="rounded-lg border p-4 space-y-3">
+                    <div key={question.id} className="space-y-3 rounded-lg border p-4">
                       <div className="font-medium text-gray-900">
                         {qIndex + 1}. {question.text}
                       </div>
-                      <div className="space-y-2 ml-4">
+                      <div className="ml-4 space-y-2">
                         {question.options?.map((option: any, optIndex: number) => (
                           <div
                             key={option.id}
-                            className={`flex items-center gap-2 p-2 rounded ${
-                              option.isCorrect ? "bg-green-50 border border-green-200" : "bg-gray-50"
+                            className={`flex items-center gap-2 rounded p-2 ${
+                              option.isCorrect ? "border border-green-200 bg-green-50" : "bg-gray-50"
                             }`}
                           >
                             <span className="text-sm font-medium text-gray-600">
                               {String.fromCharCode(65 + optIndex)}.
                             </span>
                             <span className="text-sm text-gray-700">{option.text}</span>
-                            {option.isCorrect && (
-                              <Badge className="ml-auto bg-green-600">Correct</Badge>
-                            )}
+                            {option.isCorrect && <Badge className="ml-auto bg-green-600">Correct</Badge>}
                           </div>
                         ))}
                       </div>

@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
@@ -20,12 +14,7 @@ interface QuizAttemptDialogProps {
   contentTitle: string;
 }
 
-export function QuizAttemptDialog({
-  open,
-  onOpenChange,
-  quiz,
-  contentTitle,
-}: QuizAttemptDialogProps) {
+export function QuizAttemptDialog({ open, onOpenChange, quiz, contentTitle }: QuizAttemptDialogProps) {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -117,15 +106,11 @@ export function QuizAttemptDialog({
                   <XCircle className="size-16 text-red-600" />
                 </div>
               )}
-              
+
               <div className="text-center">
-                <h3 className="text-2xl font-bold">
-                  {passed ? "Congratulations!" : "Keep Trying!"}
-                </h3>
+                <h3 className="text-2xl font-bold">{passed ? "Congratulations!" : "Keep Trying!"}</h3>
                 <p className="mt-2 text-gray-600">
-                  {passed
-                    ? "You passed the quiz!"
-                    : "You didn't pass this time, but don't give up!"}
+                  {passed ? "You passed the quiz!" : "You didn't pass this time, but don't give up!"}
                 </p>
               </div>
 
@@ -135,7 +120,9 @@ export function QuizAttemptDialog({
                   <p className="text-sm text-gray-600">Your Score</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold">{result.score}/{result.totalScore}</p>
+                  <p className="text-3xl font-bold">
+                    {result.score}/{result.totalScore}
+                  </p>
                   <p className="text-sm text-gray-600">Points</p>
                 </div>
                 <div>
@@ -192,15 +179,13 @@ export function QuizAttemptDialog({
           {/* Question */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">{currentQuestion?.text}</h3>
-            
+
             <div className="space-y-2">
               {currentQuestion?.options.map((option: any) => (
                 <label
                   key={option.id}
                   className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
-                    answers[currentQuestion.id] === option.id
-                      ? "border-blue-600 bg-blue-50"
-                      : "hover:bg-gray-50"
+                    answers[currentQuestion.id] === option.id ? "border-blue-600 bg-blue-50" : "hover:bg-gray-50"
                   }`}
                 >
                   <input
@@ -218,11 +203,7 @@ export function QuizAttemptDialog({
 
           {/* Navigation */}
           <div className="flex items-center justify-between border-t pt-4">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-            >
+            <Button variant="outline" onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
               Previous
             </Button>
 

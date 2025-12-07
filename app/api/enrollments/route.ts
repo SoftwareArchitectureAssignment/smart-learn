@@ -14,10 +14,7 @@ export async function POST(request: NextRequest) {
     const { courseId } = await request.json();
 
     if (!courseId) {
-      return NextResponse.json(
-        { error: "Course ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Course ID is required" }, { status: 400 });
     }
 
     // Check if course exists
@@ -40,10 +37,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingEnrollment) {
-      return NextResponse.json(
-        { error: "Already enrolled in this course" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Already enrolled in this course" }, { status: 400 });
     }
 
     // Create enrollment
@@ -60,9 +54,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(enrollment, { status: 201 });
   } catch (error) {
     console.error("Enrollment error:", error);
-    return NextResponse.json(
-      { error: "Failed to enroll in course" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to enroll in course" }, { status: 500 });
   }
 }

@@ -29,11 +29,21 @@ export default async function AssessmentTestPage({
     },
   });
 
+  // Fetch all courses in the system
+  const allCourses = await prisma.course.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+    },
+  });
+
   const params = await searchParams;
 
   return (
     <AssessmentTestClient
       topics={topics}
+      allCourses={allCourses}
       initialTopicId={params.topicId}
       initialCount={params.count ? parseInt(params.count) : undefined}
     />

@@ -3,23 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  BookOpen,
-  Users,
-  FileText,
-  CheckCircle,
-  Clock,
-  User,
-} from "lucide-react";
+import { BookOpen, Users, FileText, CheckCircle, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -38,9 +24,7 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
   const { allCourses, enrolledCourses, enrolledCourseIds } = coursesData;
 
   // Filter available courses (not enrolled yet)
-  const availableCourses = allCourses.filter(
-    (course) => !enrolledCourseIds.includes(course.id)
-  );
+  const availableCourses = allCourses.filter((course) => !enrolledCourseIds.includes(course.id));
 
   const handleEnroll = async (courseId: string) => {
     setIsEnrolling(courseId);
@@ -79,9 +63,7 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
           </div>
         )}
         <CardTitle className="line-clamp-2">{course.title}</CardTitle>
-        <CardDescription className="line-clamp-2">
-          {course.description || "No description"}
-        </CardDescription>
+        <CardDescription className="line-clamp-2">{course.description || "No description"}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
@@ -110,11 +92,7 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
             </Button>
           </Link>
         ) : (
-          <Button
-            className="w-full"
-            onClick={() => handleEnroll(course.id)}
-            disabled={isEnrolling === course.id}
-          >
+          <Button className="w-full" onClick={() => handleEnroll(course.id)} disabled={isEnrolling === course.id}>
             {isEnrolling === course.id ? (
               <>
                 <Clock className="mr-2 size-4 animate-spin" />
@@ -141,12 +119,8 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
 
       <Tabs defaultValue="enrolled" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="enrolled">
-            My Courses ({enrolledCourses.length})
-          </TabsTrigger>
-          <TabsTrigger value="all">
-            All Courses ({allCourses.length})
-          </TabsTrigger>
+          <TabsTrigger value="enrolled">My Courses ({enrolledCourses.length})</TabsTrigger>
+          <TabsTrigger value="all">All Courses ({allCourses.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="enrolled" className="mt-6">
@@ -156,9 +130,7 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
                 <div className="rounded-full bg-blue-100 p-4">
                   <BookOpen className="size-8 text-blue-600" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                  No enrolled courses yet
-                </h3>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">No enrolled courses yet</h3>
                 <p className="mt-2 text-center text-sm text-gray-600">
                   Explore available courses and start learning today!
                 </p>
@@ -180,12 +152,8 @@ export function StudentCoursesClient({ coursesData }: StudentCoursesClientProps)
                 <div className="rounded-full bg-green-100 p-4">
                   <CheckCircle className="size-8 text-green-600" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                  You're enrolled in all courses!
-                </h3>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                  Great job! Check back later for new courses.
-                </p>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">You're enrolled in all courses!</h3>
+                <p className="mt-2 text-center text-sm text-gray-600">Great job! Check back later for new courses.</p>
               </CardContent>
             </Card>
           ) : (

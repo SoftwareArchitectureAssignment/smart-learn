@@ -19,7 +19,7 @@ export async function uploadSingleApi({ file }: IRequest): Promise<IResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("http://localhost:5000/upload/yeadwfd6-smart-learn/single", {
+  const res = await fetch("https://object-storage.zeabur.app/upload/yeadwfd6-smart-learn/single", {
     method: "POST",
     body: formData,
   });

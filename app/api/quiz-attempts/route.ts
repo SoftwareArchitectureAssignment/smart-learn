@@ -14,10 +14,7 @@ export async function POST(request: NextRequest) {
     const { quizId, answers } = await request.json();
 
     if (!quizId || !answers) {
-      return NextResponse.json(
-        { error: "Quiz ID and answers are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Quiz ID and answers are required" }, { status: 400 });
     }
 
     // Get quiz with questions and options
@@ -43,7 +40,7 @@ export async function POST(request: NextRequest) {
     quiz.questions.forEach((question) => {
       const selectedOptionId = answers[question.id];
       const correctOption = question.options.find((opt) => opt.isCorrect);
-      
+
       if (selectedOptionId === correctOption?.id) {
         score++;
       }
@@ -69,9 +66,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Quiz attempt error:", error);
-    return NextResponse.json(
-      { error: "Failed to submit quiz attempt" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to submit quiz attempt" }, { status: 500 });
   }
 }

@@ -9,17 +9,11 @@ export async function POST(request: Request) {
 
     // Validation
     if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
     }
 
     // Check if user already exists
@@ -28,10 +22,7 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "User with this email already exists" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 400 });
     }
 
     // Hash password
@@ -59,13 +50,10 @@ export async function POST(request: Request) {
         message: "User created successfully",
         user,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Registration error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

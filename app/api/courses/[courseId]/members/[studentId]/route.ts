@@ -9,7 +9,7 @@ export async function GET(
     params,
   }: {
     params: Promise<{ courseId: string; studentId: string }>;
-  }
+  },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -48,10 +48,7 @@ export async function GET(
     });
 
     if (!enrollment) {
-      return NextResponse.json(
-        { error: "Student not enrolled in this course" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Student not enrolled in this course" }, { status: 404 });
     }
 
     // Get all quizzes in this course
@@ -108,23 +105,13 @@ export async function GET(
           averageScore:
             attempts.length > 0
               ? Math.round(
-                  (attempts.reduce(
-                    (sum, a) => sum + (a.score / a.totalScore) * 100,
-                    0
-                  ) /
-                    attempts.length) *
-                    100
+                  (attempts.reduce((sum, a) => sum + (a.score / a.totalScore) * 100, 0) / attempts.length) * 100,
                 ) / 100
               : 0,
-          bestScore:
-            attempts.length > 0
-              ? Math.max(
-                  ...attempts.map((a) => (a.score / a.totalScore) * 100)
-                )
-              : 0,
+          bestScore: attempts.length > 0 ? Math.max(...attempts.map((a) => (a.score / a.totalScore) * 100)) : 0,
           attempts: attemptStats,
         };
-      })
+      }),
     );
 
     return NextResponse.json({
@@ -134,9 +121,6 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching student quiz attempts:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

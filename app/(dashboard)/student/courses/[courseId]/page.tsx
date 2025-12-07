@@ -71,17 +71,13 @@ async function getCourseDetails(courseId: string, studentId: string) {
   // Add placeholder teacher data since schema doesn't have teacher relation
   const transformedCourse = {
     ...course,
-    teacher: { id: '', name: 'Instructor', email: '' },
+    teacher: { id: "", name: "Instructor", email: "" },
   };
 
   return transformedCourse;
 }
 
-export default async function StudentCourseDetailPage({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) {
+export default async function StudentCourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const session = await getServerSession(authOptions);
 
   if (session?.user.role !== "student") {

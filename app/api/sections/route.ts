@@ -15,10 +15,7 @@ export async function POST(request: Request) {
     const { title, courseId } = body;
 
     if (!title || !courseId) {
-      return NextResponse.json(
-        { error: "Title and courseId are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Title and courseId are required" }, { status: 400 });
     }
 
     // Verify course exists
@@ -27,10 +24,7 @@ export async function POST(request: Request) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
     // Get the highest order number
@@ -52,10 +46,7 @@ export async function POST(request: Request) {
     return NextResponse.json(section);
   } catch (error) {
     console.error("Error creating section:", error);
-    return NextResponse.json(
-      { error: "Failed to create section" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create section" }, { status: 500 });
   }
 }
 
@@ -71,10 +62,7 @@ export async function PATCH(request: Request) {
     const { id, title } = body;
 
     if (!id || !title) {
-      return NextResponse.json(
-        { error: "Section ID and title are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Section ID and title are required" }, { status: 400 });
     }
 
     // Verify section exists
@@ -83,10 +71,7 @@ export async function PATCH(request: Request) {
     });
 
     if (!section) {
-      return NextResponse.json(
-        { error: "Section not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Section not found" }, { status: 404 });
     }
 
     const updatedSection = await prisma.section.update({
@@ -97,10 +82,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(updatedSection);
   } catch (error) {
     console.error("Error updating section:", error);
-    return NextResponse.json(
-      { error: "Failed to update section" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update section" }, { status: 500 });
   }
 }
 
@@ -116,10 +98,7 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Section ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Section ID is required" }, { status: 400 });
     }
 
     // Verify section exists
@@ -128,10 +107,7 @@ export async function DELETE(request: Request) {
     });
 
     if (!section) {
-      return NextResponse.json(
-        { error: "Section not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Section not found" }, { status: 404 });
     }
 
     await prisma.section.delete({
@@ -141,9 +117,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting section:", error);
-    return NextResponse.json(
-      { error: "Failed to delete section" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete section" }, { status: 500 });
   }
 }

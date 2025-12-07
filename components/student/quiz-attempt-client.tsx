@@ -3,19 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  Trophy,
-  XCircle,
-} from "lucide-react";
+import { ChevronLeft, Trophy, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface QuizAttemptClientProps {
   quiz: any;
@@ -113,13 +103,9 @@ export function QuizAttemptClient({ quiz }: QuizAttemptClientProps) {
                 )}
 
                 <div className="text-center">
-                  <h3 className="text-3xl font-bold">
-                    {passed ? "Congratulations!" : "Keep Trying!"}
-                  </h3>
+                  <h3 className="text-3xl font-bold">{passed ? "Congratulations!" : "Keep Trying!"}</h3>
                   <p className="mt-2 text-gray-600">
-                    {passed
-                      ? "You passed the quiz!"
-                      : "You didn't pass this time, but don't give up!"}
+                    {passed ? "You passed the quiz!" : "You didn't pass this time, but don't give up!"}
                   </p>
                 </div>
 
@@ -208,9 +194,7 @@ export function QuizAttemptClient({ quiz }: QuizAttemptClientProps) {
                   <label
                     key={option.id}
                     className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
-                      answers[currentQuestion.id] === option.id
-                        ? "border-blue-600 bg-blue-50"
-                        : "hover:bg-gray-50"
+                      answers[currentQuestion.id] === option.id ? "border-blue-600 bg-blue-50" : "hover:bg-gray-50"
                     }`}
                   >
                     <input
@@ -228,11 +212,7 @@ export function QuizAttemptClient({ quiz }: QuizAttemptClientProps) {
 
             {/* Navigation */}
             <div className="flex items-center justify-between border-t pt-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-              >
+              <Button variant="outline" onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
                 Previous
               </Button>
 

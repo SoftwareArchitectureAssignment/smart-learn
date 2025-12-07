@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, CheckCircle, XCircle } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle, Brain, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { createLearningPathApi } from "@/apis/ai/create-learining-path.api";
 
 interface Question {
   id: string;
@@ -16,22 +19,46 @@ interface Question {
   }[];
 }
 
+interface DetailedResult {
+  question: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+interface Course {
+  id: string;
+  title: string;
+  description: string | null;
+}
+
 interface AssessmentReviewClientProps {
   learningPath: {
     id: string;
     title: string;
     assessmentAttempt: {
+      id: string;
       score: number;
       totalScore: number;
       totalQuestions: number;
       answers: Record<string, string>;
+      topicId: string;
       topicName: string;
     };
   };
   questions: Question[];
+  allCourses: Course[];
+  hasLearningPath: boolean;
 }
 
-export function AssessmentReviewClient({ learningPath, questions }: AssessmentReviewClientProps) {
+export function AssessmentReviewClient({
+  learningPath,
+  questions,
+  allCourses,
+  hasLearningPath,
+}: AssessmentReviewClientProps) {
+  const router = useRouter();
+  const [isCreatingLearningPath, setIsCreatingLearningPath] = useState(false);
   const { assessmentAttempt } = learningPath;
   const percentage = Math.round((assessmentAttempt.score / assessmentAttempt.totalScore) * 100);
   const answers = assessmentAttempt.answers;
@@ -41,6 +68,84 @@ export function AssessmentReviewClient({ learningPath, questions }: AssessmentRe
     const correctOption = question.options.find((opt) => opt.isCorrect);
     return selectedOptionId === correctOption?.id;
   }).length;
+
+  const handleCreateLearningPath = async () => {
+    setIsCreatingLearningPath(true);
+    try {
+      // Determine level based on percentage
+      let level = "beginner";
+      if (percentage >= 80) {
+        level = "advanced";
+      } else if (percentage >= 60) {
+        level = "intermediate";
+      }
+
+      // Format questions with answers for AI
+      const questionsData: DetailedResult[] = questions.map((question) => {
+        const selectedOptionId = answers[question.id];
+        const selectedOption = question.options.find((o) => o.id === selectedOptionId);
+        const correctOption = question.options.find((o) => o.isCorrect);
+        const isCorrect = selectedOptionId === correctOption?.id;
+
+        return {
+          question: question.text,
+          userAnswer: selectedOption?.text || "No answer",
+          correctAnswer: correctOption?.text || "Unknown",
+          isCorrect,
+        };
+      });
+
+      // Format courses for AI
+      const coursesInfo = allCourses.map((course) => ({
+        course_uid: course.id,
+        course_name: course.title,
+        description: course.description || "",
+      }));
+
+      // Create prompt for AI
+      const prompt = `Based on the student's assessment results in ${assessmentAttempt.topicName}, recommend appropriate courses. The student scored ${percentage}% (${assessmentAttempt.score}/${assessmentAttempt.totalScore}) which indicates a ${level} level.`;
+
+      // Prepare messages field with prompt, courses, and questions
+      const messages = JSON.stringify({
+        prompt,
+        courses: coursesInfo,
+        questions: questionsData,
+      });
+
+      // Call AI API using the API function
+      const aiData = await createLearningPathApi({
+        topics: assessmentAttempt.topicName,
+        level: level,
+        questions: messages,
+      });
+
+      // Create learning path in database with AI recommendations
+      const createResponse = await fetch("/api/learning-paths", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assessmentAttemptId: assessmentAttempt.id,
+          recommendations: aiData.recommendedLearningPaths || [],
+          advice: aiData.advice || "",
+          explanation: aiData.explanation || "",
+        }),
+      });
+
+      if (!createResponse.ok) {
+        throw new Error("Failed to create learning path");
+      }
+
+      // Refresh page to show new learning path
+      router.refresh();
+    } catch (error) {
+      console.error("Error creating learning path:", error);
+      alert("Failed to create learning path. Please try again.");
+    } finally {
+      setIsCreatingLearningPath(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -60,6 +165,21 @@ export function AssessmentReviewClient({ learningPath, questions }: AssessmentRe
                 <CardTitle>Assessment Review</CardTitle>
                 <CardDescription>{assessmentAttempt.topicName} Assessment</CardDescription>
               </div>
+              {!hasLearningPath && (
+                <Button onClick={handleCreateLearningPath} disabled={isCreatingLearningPath}>
+                  {isCreatingLearningPath ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="mr-2 size-4" />
+                      Create Learning Path
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -83,6 +203,22 @@ export function AssessmentReviewClient({ learningPath, questions }: AssessmentRe
                 </div>
               </div>
             </div>
+            {!hasLearningPath && (
+              <div className="mt-4 rounded-lg bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">
+                  💡 Click "Create Learning Path" to get AI-powered course recommendations based on your assessment
+                  results.
+                </p>
+              </div>
+            )}
+            {hasLearningPath && (
+              <div className="mt-4 rounded-lg bg-green-50 p-4">
+                <p className="text-sm text-green-800">
+                  ✅ Learning path has been created! View your personalized course recommendations on the Learning Paths
+                  page.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

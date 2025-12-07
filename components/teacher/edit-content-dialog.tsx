@@ -23,11 +23,7 @@ interface EditContentDialogProps {
   content: any;
 }
 
-export function EditContentDialog({
-  open,
-  onOpenChange,
-  content,
-}: EditContentDialogProps) {
+export function EditContentDialog({ open, onOpenChange, content }: EditContentDialogProps) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,11 +40,13 @@ export function EditContentDialog({
 
   // Quiz fields
   const [passingScore, setPassingScore] = useState("70");
-  const [questions, setQuestions] = useState<Array<{
-    id?: string;
-    text: string;
-    options: Array<{ id?: string; text: string; isCorrect: boolean }>;
-  }>>([]);
+  const [questions, setQuestions] = useState<
+    Array<{
+      id?: string;
+      text: string;
+      options: Array<{ id?: string; text: string; isCorrect: boolean }>;
+    }>
+  >([]);
 
   useEffect(() => {
     if (content && open) {
@@ -73,7 +71,7 @@ export function EditContentDialog({
                 text: opt.text,
                 isCorrect: opt.isCorrect,
               })),
-            }))
+            })),
           );
         } else {
           setQuestions([
@@ -153,7 +151,7 @@ export function EditContentDialog({
               setIsLoading(false);
               return;
             }
-            const hasCorrect = q.options.some(opt => opt.isCorrect);
+            const hasCorrect = q.options.some((opt) => opt.isCorrect);
             if (!hasCorrect) {
               alert(`Question ${i + 1} must have at least one correct answer`);
               setIsLoading(false);
@@ -214,13 +212,11 @@ export function EditContentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Edit Content</DialogTitle>
-            <DialogDescription>
-              Update the content details below.
-            </DialogDescription>
+            <DialogDescription>Update the content details below.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -246,9 +242,7 @@ export function EditContentDialog({
                     accept="video/*"
                     maxSize={100}
                   />
-                  <p className="text-sm text-gray-500">
-                    Upload a video file (MP4, WebM, etc.) up to 100MB
-                  </p>
+                  <p className="text-sm text-gray-500">Upload a video file (MP4, WebM, etc.) up to 100MB</p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="videoDuration">Duration (seconds) - Optional</Label>
@@ -275,9 +269,7 @@ export function EditContentDialog({
                   accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                   maxSize={50}
                 />
-                <p className="text-sm text-gray-500">
-                  Upload a document (PDF, DOC, DOCX, PPT, PPTX) up to 50MB
-                </p>
+                <p className="text-sm text-gray-500">Upload a document (PDF, DOC, DOCX, PPT, PPTX) up to 50MB</p>
               </div>
             )}
 
@@ -343,7 +335,7 @@ export function EditContentDialog({
                   </div>
 
                   {questions.map((question, qIndex) => (
-                    <div key={qIndex} className="rounded-lg border p-4 space-y-3">
+                    <div key={qIndex} className="space-y-3 rounded-lg border p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 space-y-2">
                           <Label>Question {qIndex + 1}</Label>
@@ -435,7 +427,7 @@ export function EditContentDialog({
                                 onClick={() => {
                                   const newQuestions = [...questions];
                                   newQuestions[qIndex].options = newQuestions[qIndex].options.filter(
-                                    (_, i) => i !== optIndex
+                                    (_, i) => i !== optIndex,
                                   );
                                   setQuestions(newQuestions);
                                 }}
@@ -454,12 +446,7 @@ export function EditContentDialog({
             )}
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading || !title.trim()}>

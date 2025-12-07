@@ -14,13 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Loader2, Plus, Trash2, Check } from "lucide-react";
 
@@ -32,11 +26,7 @@ interface AddContentDialogProps {
 
 type ContentType = "VIDEO" | "DOCUMENT" | "TEXT" | "QUIZ";
 
-export function AddContentDialog({
-  open,
-  onOpenChange,
-  sectionId,
-}: AddContentDialogProps) {
+export function AddContentDialog({ open, onOpenChange, sectionId }: AddContentDialogProps) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [type, setType] = useState<ContentType>("VIDEO");
@@ -54,10 +44,12 @@ export function AddContentDialog({
 
   // Quiz fields
   const [passingScore, setPassingScore] = useState("70");
-  const [questions, setQuestions] = useState<Array<{
-    text: string;
-    options: Array<{ text: string; isCorrect: boolean }>;
-  }>>([
+  const [questions, setQuestions] = useState<
+    Array<{
+      text: string;
+      options: Array<{ text: string; isCorrect: boolean }>;
+    }>
+  >([
     {
       text: "",
       options: [
@@ -151,7 +143,7 @@ export function AddContentDialog({
               setIsLoading(false);
               return;
             }
-            const hasCorrect = q.options.some(opt => opt.isCorrect);
+            const hasCorrect = q.options.some((opt) => opt.isCorrect);
             if (!hasCorrect) {
               alert(`Question ${i + 1} must have at least one correct answer`);
               setIsLoading(false);
@@ -210,17 +202,18 @@ export function AddContentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(open) => {
-      onOpenChange(open);
-      if (!open) resetForm();
-    }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        onOpenChange(open);
+        if (!open) resetForm();
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Content</DialogTitle>
-            <DialogDescription>
-              Add learning material to this section.
-            </DialogDescription>
+            <DialogDescription>Add learning material to this section.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -236,11 +229,7 @@ export function AddContentDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="type">Content Type</Label>
-              <Select
-                value={type}
-                onValueChange={(value) => setType(value as ContentType)}
-                disabled={isLoading}
-              >
+              <Select value={type} onValueChange={(value) => setType(value as ContentType)} disabled={isLoading}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -265,9 +254,7 @@ export function AddContentDialog({
                     accept="video/*"
                     maxSize={100}
                   />
-                  <p className="text-sm text-gray-500">
-                    Upload a video file (MP4, WebM, etc.) up to 100MB
-                  </p>
+                  <p className="text-sm text-gray-500">Upload a video file (MP4, WebM, etc.) up to 100MB</p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="videoDuration">Duration (seconds) - Optional</Label>
@@ -294,9 +281,7 @@ export function AddContentDialog({
                   accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                   maxSize={50}
                 />
-                <p className="text-sm text-gray-500">
-                  Upload a document (PDF, DOC, DOCX, PPT, PPTX) up to 50MB
-                </p>
+                <p className="text-sm text-gray-500">Upload a document (PDF, DOC, DOCX, PPT, PPTX) up to 50MB</p>
               </div>
             )}
 
@@ -309,7 +294,7 @@ export function AddContentDialog({
                   placeholder="Enter your text content here..."
                   value={textBody}
                   onChange={(e) => setTextBody(e.target.value)}
-                  disabled={isLoading }
+                  disabled={isLoading}
                   rows={8}
                 />
               </div>
@@ -362,7 +347,7 @@ export function AddContentDialog({
                   </div>
 
                   {questions.map((question, qIndex) => (
-                    <div key={qIndex} className="rounded-lg border p-4 space-y-3">
+                    <div key={qIndex} className="space-y-3 rounded-lg border p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 space-y-2">
                           <Label>Question {qIndex + 1}</Label>
@@ -455,7 +440,7 @@ export function AddContentDialog({
                                 onClick={() => {
                                   const newQuestions = [...questions];
                                   newQuestions[qIndex].options = newQuestions[qIndex].options.filter(
-                                    (_, i) => i !== optIndex
+                                    (_, i) => i !== optIndex,
                                   );
                                   setQuestions(newQuestions);
                                 }}
@@ -481,7 +466,7 @@ export function AddContentDialog({
                 onOpenChange(false);
                 resetForm();
               }}
-              disabled={isLoading }
+              disabled={isLoading}
             >
               Cancel
             </Button>

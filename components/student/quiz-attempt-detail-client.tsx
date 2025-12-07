@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { ChevronLeft, CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
@@ -44,9 +38,7 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
               </div>
               <Badge
                 className={
-                  passed
-                    ? "bg-green-100 text-green-700 hover:bg-green-100"
-                    : "bg-red-100 text-red-700 hover:bg-red-100"
+                  passed ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-red-100 text-red-700 hover:bg-red-100"
                 }
               >
                 {passed ? "Passed" : "Failed"}
@@ -73,9 +65,7 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Clock className="size-4" />
-                <span>
-                  {format(new Date(attempt.attemptedAt), "MMM dd, yyyy 'at' HH:mm")}
-                </span>
+                <span>{format(new Date(attempt.attemptedAt), "MMM dd, yyyy 'at' HH:mm")}</span>
               </div>
             </div>
           </CardContent>
@@ -88,7 +78,7 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
               <CardTitle className="text-lg">Teacher Feedback</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose max-w-none whitespace-pre-wrap rounded-lg bg-blue-50 p-4 text-sm">
+              <div className="prose max-w-none rounded-lg bg-blue-50 p-4 text-sm whitespace-pre-wrap">
                 {attempt.feedback}
               </div>
             </CardContent>
@@ -135,8 +125,8 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                           isCorrectAnswer
                             ? "border-green-500 bg-green-50"
                             : isSelected
-                            ? "border-red-500 bg-red-50"
-                            : "bg-gray-50"
+                              ? "border-red-500 bg-red-50"
+                              : "bg-gray-50"
                         }`}
                       >
                         <div className="flex size-6 items-center justify-center">
@@ -150,16 +140,8 @@ export function QuizAttemptDetailClient({ attempt }: QuizAttemptDetailClientProp
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{option.text}</p>
-                          {isCorrectAnswer && (
-                            <p className="mt-1 text-sm text-green-700">
-                              ✓ Correct Answer
-                            </p>
-                          )}
-                          {isSelected && !isCorrectAnswer && (
-                            <p className="mt-1 text-sm text-red-700">
-                              ✗ Your Answer
-                            </p>
-                          )}
+                          {isCorrectAnswer && <p className="mt-1 text-sm text-green-700">✓ Correct Answer</p>}
+                          {isSelected && !isCorrectAnswer && <p className="mt-1 text-sm text-red-700">✗ Your Answer</p>}
                         </div>
                       </div>
                     );

@@ -71,10 +71,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
   const [selectedSectionId, setSelectedSectionId] = useState<string>("");
   const [selectedContent, setSelectedContent] = useState<any>(null);
 
-  const totalContents = course.sections.reduce(
-    (acc: number, section: any) => acc + section.contents.length,
-    0
-  );
+  const totalContents = course.sections.reduce((acc: number, section: any) => acc + section.contents.length, 0);
 
   const handleDeleteSection = async (sectionId: string) => {
     if (!confirm("Are you sure you want to delete this section? All contents will be removed.")) {
@@ -148,9 +145,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-              <p className="mt-2 text-gray-600">
-                {course.description || "No description provided"}
-              </p>
+              <p className="mt-2 text-gray-600">{course.description || "No description provided"}</p>
               <div className="mt-4 flex items-center gap-4">
                 <Badge variant={course._count.enrollments > 0 ? "default" : "secondary"}>
                   {course._count.enrollments > 0 ? "Active" : "Draft"}
@@ -231,11 +226,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
           </CardHeader>
           <CardContent>
             <div className="aspect-video overflow-hidden rounded-lg bg-gray-100">
-              <img
-                src={course.thumbnail}
-                alt={course.title}
-                className="size-full object-cover"
-              />
+              <img src={course.thumbnail} alt={course.title} className="size-full object-cover" />
             </div>
           </CardContent>
         </Card>
@@ -247,9 +238,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Course Content</CardTitle>
-              <CardDescription className="mt-1">
-                Manage sections and learning materials
-              </CardDescription>
+              <CardDescription className="mt-1">Manage sections and learning materials</CardDescription>
             </div>
             <Button onClick={() => setAddSectionOpen(true)}>
               <Plus className="mr-2 size-4" />
@@ -264,9 +253,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                 <BookOpen className="size-8 text-blue-600" />
               </div>
               <h3 className="mt-4 text-lg font-semibold text-gray-900">No sections yet</h3>
-              <p className="mt-2 text-center text-sm text-gray-600">
-                Start building your course by adding sections
-              </p>
+              <p className="mt-2 text-center text-sm text-gray-600">Start building your course by adding sections</p>
               <Button className="mt-6" onClick={() => setAddSectionOpen(true)}>
                 <Plus className="mr-2 size-4" />
                 Add Your First Section
@@ -275,10 +262,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
           ) : (
             <div className="space-y-4">
               {course.sections.map((section: any, sectionIndex: number) => (
-                <div
-                  key={section.id}
-                  className="rounded-lg border bg-white transition-shadow hover:shadow-md"
-                >
+                <div key={section.id} className="rounded-lg border bg-white transition-shadow hover:shadow-md">
                   {/* Section Header */}
                   <div className="flex items-center justify-between border-b bg-gray-50 p-4">
                     <div className="flex items-center gap-3">
@@ -294,11 +278,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAddContent(section.id)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleAddContent(section.id)}>
                         <Plus className="mr-2 size-4" />
                         Add Content
                       </Button>
@@ -356,10 +336,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                                       <span className="font-medium text-gray-900">
                                         {contentIndex + 1}. {content.title}
                                       </span>
-                                      <Badge
-                                        className={getContentTypeBadge(content.type)}
-                                        variant="secondary"
-                                      >
+                                      <Badge className={getContentTypeBadge(content.type)} variant="secondary">
                                         {content.type}
                                       </Badge>
                                     </div>
@@ -368,7 +345,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                                         Duration:{" "}
                                         {content.video.duration
                                           ? `${Math.floor(content.video.duration / 60)}:${String(
-                                              content.video.duration % 60
+                                              content.video.duration % 60,
                                             ).padStart(2, "0")}`
                                           : "N/A"}
                                       </p>
@@ -377,9 +354,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                                       <p className="text-xs text-gray-600">
                                         {content.document.fileType} •{" "}
                                         {content.document.fileSize
-                                          ? `${(content.document.fileSize / 1024 / 1024).toFixed(
-                                              2
-                                            )} MB`
+                                          ? `${(content.document.fileSize / 1024 / 1024).toFixed(2)} MB`
                                           : "N/A"}
                                       </p>
                                     )}
@@ -387,11 +362,7 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEditContent(content)}
-                                >
+                                <Button variant="ghost" size="sm" onClick={() => handleEditContent(content)}>
                                   <Pencil className="size-4" />
                                 </Button>
                                 <Button
@@ -418,9 +389,9 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
 
                               {/* Document Preview */}
                               {content.type === "DOCUMENT" && content.document && (
-                                <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 bg-gray-50">
-                                  <FileIcon className="size-12 text-blue-600 mb-2" />
-                                  <p className="text-sm font-medium text-gray-700 mb-2">Document File</p>
+                                <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50 p-8">
+                                  <FileIcon className="mb-2 size-12 text-blue-600" />
+                                  <p className="mb-2 text-sm font-medium text-gray-700">Document File</p>
                                   <a
                                     href={content.document.url}
                                     target="_blank"
@@ -428,22 +399,24 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                                     className="text-blue-600 hover:underline"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <Button variant="outline" size="sm">View Document</Button>
+                                    <Button variant="outline" size="sm">
+                                      View Document
+                                    </Button>
                                   </a>
                                 </div>
                               )}
 
                               {/* Text Preview */}
                               {content.type === "TEXT" && content.text && (
-                                <div className="rounded-lg border p-4 bg-gray-50">
-                                  <div className="whitespace-pre-wrap text-sm text-gray-700 line-clamp-6">
+                                <div className="rounded-lg border bg-gray-50 p-4">
+                                  <div className="line-clamp-6 text-sm whitespace-pre-wrap text-gray-700">
                                     {content.text.body}
                                   </div>
                                   {content.text.body.length > 300 && (
                                     <Button
                                       variant="link"
                                       size="sm"
-                                      className="mt-2 p-0 h-auto"
+                                      className="mt-2 h-auto p-0"
                                       onClick={() => handleViewContent(content)}
                                     >
                                       Read more...
@@ -455,19 +428,16 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
                               {/* Quiz Preview */}
                               {content.type === "QUIZ" && content.quiz && (
                                 <div className="space-y-3">
-                                  <div className="rounded-lg border p-3 bg-blue-50">
+                                  <div className="rounded-lg border bg-blue-50 p-3">
                                     <p className="text-sm text-gray-700">
                                       <span className="font-medium">Passing Score:</span> {content.quiz.passingScore}%
                                     </p>
-                                    <p className="text-sm text-gray-700 mt-1">
-                                      <span className="font-medium">Questions:</span> {content.quiz.questions?.length || 0}
+                                    <p className="mt-1 text-sm text-gray-700">
+                                      <span className="font-medium">Questions:</span>{" "}
+                                      {content.quiz.questions?.length || 0}
                                     </p>
                                   </div>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleViewContent(content)}
-                                  >
+                                  <Button variant="outline" size="sm" onClick={() => handleViewContent(content)}>
                                     View All Questions
                                   </Button>
                                 </div>
@@ -486,26 +456,10 @@ export function CourseContentClient({ course, hideHeader = false }: CourseConten
       </Card>
 
       {/* Dialogs */}
-      <AddSectionDialog
-        open={addSectionOpen}
-        onOpenChange={setAddSectionOpen}
-        courseId={course.id}
-      />
-      <AddContentDialog
-        open={addContentOpen}
-        onOpenChange={setAddContentOpen}
-        sectionId={selectedSectionId}
-      />
-      <ViewContentDialog
-        open={viewContentOpen}
-        onOpenChange={setViewContentOpen}
-        content={selectedContent}
-      />
-      <EditContentDialog
-        open={editContentOpen}
-        onOpenChange={setEditContentOpen}
-        content={selectedContent}
-      />
+      <AddSectionDialog open={addSectionOpen} onOpenChange={setAddSectionOpen} courseId={course.id} />
+      <AddContentDialog open={addContentOpen} onOpenChange={setAddContentOpen} sectionId={selectedSectionId} />
+      <ViewContentDialog open={viewContentOpen} onOpenChange={setViewContentOpen} content={selectedContent} />
+      <EditContentDialog open={editContentOpen} onOpenChange={setEditContentOpen} content={selectedContent} />
     </div>
   );
 }

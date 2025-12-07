@@ -38,8 +38,8 @@ export function FileUpload({
 
     // Validate file type
     if (accept) {
-      const acceptTypes = accept.split(",").map(type => type.trim());
-      const isValid = acceptTypes.some(type => {
+      const acceptTypes = accept.split(",").map((type) => type.trim());
+      const isValid = acceptTypes.some((type) => {
         if (type.startsWith(".")) {
           // File extension check
           return file.name.toLowerCase().endsWith(type.toLowerCase());
@@ -52,7 +52,7 @@ export function FileUpload({
           return file.type === type;
         }
       });
-      
+
       if (!isValid) {
         setError("Invalid file type");
         return;
@@ -128,9 +128,7 @@ export function FileUpload({
     return (
       <div className="relative">
         <div className="group relative aspect-video overflow-hidden rounded-lg border bg-gray-100">
-          {isImage && (
-            <img src={value} alt="Uploaded" className="size-full object-cover" />
-          )}
+          {isImage && <img src={value} alt="Uploaded" className="size-full object-cover" />}
           {isVideo && (
             <video src={value} controls className="size-full object-cover">
               Your browser does not support the video tag.
@@ -152,12 +150,7 @@ export function FileUpload({
           )}
           {!disabled && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={handleRemove}
-              >
+              <Button type="button" variant="destructive" size="sm" onClick={handleRemove}>
                 <X className="mr-2 size-4" />
                 Remove
               </Button>
@@ -178,19 +171,14 @@ export function FileUpload({
         disabled={disabled || isUploading}
         className="hidden"
       />
-      
+
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={() => !disabled && !isUploading && fileInputRef.current?.click()}
-        className={`
-          relative flex aspect-video cursor-pointer flex-col items-center justify-center
-          rounded-lg border-2 border-dashed transition-colors
-          ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50"}
-          ${disabled || isUploading ? "cursor-not-allowed opacity-50" : "hover:border-blue-400 hover:bg-blue-50"}
-        `}
+        className={`relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50"} ${disabled || isUploading ? "cursor-not-allowed opacity-50" : "hover:border-blue-400 hover:bg-blue-50"} `}
       >
         {isUploading ? (
           <>
@@ -216,9 +204,7 @@ export function FileUpload({
         )}
       </div>
 
-      {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

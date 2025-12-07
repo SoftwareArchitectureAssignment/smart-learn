@@ -16,11 +16,18 @@ export default async function AssessmentReviewPage({ params }: PageProps) {
     redirect("/login");
   }
 
-  // Fetch learning path
+  // Fetch learning path with courses
   const learningPath = await prisma.learningPath.findUnique({
     where: {
       id: resolvedParams.pathId,
       studentId: session.user.id,
+    },
+    include: {
+      courses: {
+        include: {
+          course: true,
+        },
+      },
     },
   });
 
@@ -50,6 +57,9 @@ export default async function AssessmentReviewPage({ params }: PageProps) {
     redirect("/student/learning-paths");
   }
 
+  // Check if learning path has courses
+  const hasLearningPath = learningPath.courses.length > 0;
+
   // Fetch questions for this assessment
   const questions = await prisma.assessmentQuestion.findMany({
     where: {
@@ -65,16 +75,27 @@ export default async function AssessmentReviewPage({ params }: PageProps) {
     take: assessmentAttempt.totalQuestions,
   });
 
+  // Fetch all courses in the system
+  const allCourses = await prisma.course.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+    },
+  });
+
   return (
     <AssessmentReviewClient
       learningPath={{
         id: learningPath.id,
         title: learningPath.title,
         assessmentAttempt: {
+          id: assessmentAttempt.id,
           score: assessmentAttempt.score,
           totalScore: assessmentAttempt.totalScore,
           totalQuestions: assessmentAttempt.totalQuestions,
           answers: assessmentAttempt.answers as Record<string, string>,
+          topicId: assessmentAttempt.topicId,
           topicName: topic.name,
         },
       }}
@@ -87,6 +108,8 @@ export default async function AssessmentReviewPage({ params }: PageProps) {
           isCorrect: o.isCorrect,
         })),
       }))}
+      allCourses={allCourses}
+      hasLearningPath={hasLearningPath}
     />
   );
 }

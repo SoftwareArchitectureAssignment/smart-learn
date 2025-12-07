@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { createLearningPathApi } from "@/apis/ai/create-learining-path.api";
 
 interface Topic {
   id: string;
@@ -17,10 +18,21 @@ interface Topic {
   description: string | null;
 }
 
+interface Course {
+  id: string;
+  title: string;
+  description: string | null;
+}
+
 interface AssessmentQuestion {
   id: string;
   text: string;
   options: {
+    id: string;
+    text: string;
+    order: number;
+  }[];
+  shuffledOptions?: {
     id: string;
     text: string;
     order: number;
@@ -42,13 +54,14 @@ interface DetailedResult {
 
 interface AssessmentTestClientProps {
   topics: Topic[];
+  allCourses: Course[];
   initialTopicId?: string;
   initialCount?: number;
 }
 
 type AssessmentStep = "config" | "testing" | "result" | "review";
 
-export function AssessmentTestClient({ topics, initialTopicId, initialCount }: AssessmentTestClientProps) {
+export function AssessmentTestClient({ topics, allCourses, initialTopicId, initialCount }: AssessmentTestClientProps) {
   const router = useRouter();
   const [step, setStep] = useState<AssessmentStep>("config");
   const [selectedTopic, setSelectedTopic] = useState<string>(initialTopicId || "");
@@ -60,6 +73,17 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [isCreatingLearningPath, setIsCreatingLearningPath] = useState(false);
+
+  // Shuffle array helper function
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   // Auto-start if params are provided
   useEffect(() => {
@@ -105,7 +129,14 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
       }
 
       const data = await response.json();
-      setQuestions(data);
+
+      // Shuffle options for each question
+      const processedQuestions = data.map((q: AssessmentQuestion) => ({
+        ...q,
+        shuffledOptions: shuffleArray(q.options),
+      }));
+
+      setQuestions(processedQuestions);
       setTimeRemaining(questionCount * 60); // 1 minute per question
       setStep("testing");
       setCurrentQuestionIndex(0);
@@ -157,12 +188,89 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
 
       const data = await response.json();
       setResult(data);
-      setStep("result");
+      setStep("review");
     } catch (error) {
       console.error("Error submitting assessment:", error);
       alert("Failed to submit assessment. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateLearningPath = async () => {
+    if (!result || !result.detailedResults) return;
+
+    setIsCreatingLearningPath(true);
+    try {
+      // Get topic name
+      const topic = topics.find((t) => t.id === selectedTopic);
+      const topicName = topic?.name || "Unknown Topic";
+
+      // Determine level based on percentage
+      let level = "beginner";
+      if (result.percentage >= 80) {
+        level = "advanced";
+      } else if (result.percentage >= 60) {
+        level = "intermediate";
+      }
+
+      // Format questions with answers for AI
+      const questionsData = result.detailedResults.map((item: DetailedResult) => ({
+        question: item.questionText,
+        userAnswer: item.options.find((o) => o.id === item.userAnswerId)?.text || "No answer",
+        correctAnswer: item.options.find((o) => o.id === item.correctAnswerId)?.text || "Unknown",
+        isCorrect: item.isCorrect,
+      }));
+
+      // Format courses for AI
+      const coursesInfo = allCourses.map((course) => ({
+        course_uid: course.id,
+        course_name: course.title,
+        description: course.description || "",
+      }));
+
+      // Create prompt for AI
+      const prompt = `Based on the student's assessment results in ${topicName}, recommend appropriate courses. The student scored ${result.percentage}% (${result.score}/${result.totalScore}) which indicates a ${level} level.`;
+
+      // Prepare messages field with prompt, courses, and questions
+      const messages = JSON.stringify({
+        prompt,
+        courses: coursesInfo,
+        questions: questionsData,
+      });
+
+      // Call AI API using the API function
+      const aiData = await createLearningPathApi({
+        topics: topicName,
+        level: level,
+        questions: messages,
+      });
+
+      // Create learning path in database with AI recommendations
+      const createResponse = await fetch("/api/learning-paths", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assessmentAttemptId: result.id,
+          recommendations: aiData.recommendedLearningPaths || [],
+          advice: aiData.advice || "",
+          explanation: aiData.explanation || "",
+        }),
+      });
+
+      if (!createResponse.ok) {
+        throw new Error("Failed to create learning path");
+      }
+
+      // Redirect to learning paths page
+      router.push("/student/learning-paths");
+    } catch (error) {
+      console.error("Error creating learning path:", error);
+      alert("Failed to create learning path. Please try again.");
+    } finally {
+      setIsCreatingLearningPath(false);
     }
   };
 
@@ -314,28 +422,26 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
                 <h3 className="text-xl font-semibold">{currentQuestion.text}</h3>
 
                 <div className="space-y-3">
-                  {currentQuestion.options
-                    .sort((a, b) => a.order - b.order)
-                    .map((option) => {
-                      const isSelected = answers[currentQuestion.id] === option.id;
-                      return (
-                        <label
-                          key={option.id}
-                          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
-                            isSelected ? "border-blue-600 bg-blue-50" : "hover:bg-gray-50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={`question-${currentQuestion.id}`}
-                            checked={isSelected}
-                            onChange={() => handleAnswerSelect(currentQuestion.id, option.id)}
-                            className="mt-1"
-                          />
-                          <span className="flex-1">{option.text}</span>
-                        </label>
-                      );
-                    })}
+                  {(currentQuestion.shuffledOptions || currentQuestion.options).map((option) => {
+                    const isSelected = answers[currentQuestion.id] === option.id;
+                    return (
+                      <label
+                        key={option.id}
+                        className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+                          isSelected ? "border-blue-600 bg-blue-50" : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${currentQuestion.id}`}
+                          checked={isSelected}
+                          onChange={() => handleAnswerSelect(currentQuestion.id, option.id)}
+                          className="mt-1"
+                        />
+                        <span className="flex-1">{option.text}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -374,96 +480,6 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
     );
   }
 
-  // Result screen
-  if (step === "result" && result) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="mx-auto max-w-3xl">
-          <Link href="/student/learning-paths">
-            <Button variant="ghost" size="sm" className="mb-4">
-              <ChevronLeft className="mr-1 size-4" />
-              Back to Learning Paths
-            </Button>
-          </Link>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Assessment Complete!</CardTitle>
-              <CardDescription>Your personalized learning path has been generated</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                {result.percentage >= 80 ? (
-                  <div className="rounded-full bg-green-100 p-6">
-                    <Trophy className="size-20 text-green-600" />
-                  </div>
-                ) : result.percentage >= 60 ? (
-                  <div className="rounded-full bg-blue-100 p-6">
-                    <Brain className="size-20 text-blue-600" />
-                  </div>
-                ) : (
-                  <div className="rounded-full bg-yellow-100 p-6">
-                    <Brain className="size-20 text-yellow-600" />
-                  </div>
-                )}
-
-                <div className="text-center">
-                  <h3 className="text-3xl font-bold">
-                    {result.percentage >= 80
-                      ? "Excellent Work!"
-                      : result.percentage >= 60
-                        ? "Good Job!"
-                        : "Great Start!"}
-                  </h3>
-                  <p className="mt-2 text-gray-600">
-                    {result.percentage >= 80
-                      ? "You've demonstrated advanced knowledge"
-                      : result.percentage >= 60
-                        ? "You have a solid foundation"
-                        : "There's room to grow"}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-12 text-center">
-                  <div>
-                    <p className="text-4xl font-bold">{result.percentage}%</p>
-                    <p className="text-sm text-gray-600">Your Score</p>
-                  </div>
-                  <div>
-                    <p className="text-4xl font-bold">
-                      {result.score}/{result.totalScore}
-                    </p>
-                    <p className="text-sm text-gray-600">Points</p>
-                  </div>
-                </div>
-              </div>
-
-              {result.learningPath && (
-                <div className="rounded-lg border bg-green-50 p-4">
-                  <h4 className="font-semibold text-green-900">🎉 Learning Path Generated</h4>
-                  <p className="mt-2 text-sm text-green-800">
-                    Based on your assessment results, we've created a personalized learning path with{" "}
-                    {result.learningPath.coursesCount} recommended courses.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep("review")} className="flex-1">
-                  <Eye className="mr-2 size-4" />
-                  Review Answers
-                </Button>
-                <Button onClick={() => router.push("/student/learning-paths")} className="flex-1">
-                  View Learning Path
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   // Review screen
   if (step === "review" && result && result.detailedResults) {
     return (
@@ -480,14 +496,31 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Review Your Answers</CardTitle>
-                  <CardDescription>See which questions you got right and wrong</CardDescription>
+                  <CardTitle>Assessment Results</CardTitle>
+                  <CardDescription>Review your answers and performance</CardDescription>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold">
-                    {result.score}/{result.totalScore}
-                  </p>
-                  <p className="text-sm text-gray-600">{result.percentage}%</p>
+                  <div className="flex flex-col items-end gap-2">
+                    <div>
+                      <p className="text-3xl font-bold">
+                        {result.score}/{result.totalScore}
+                      </p>
+                      <p className="text-sm text-gray-600">{result.percentage}%</p>
+                    </div>
+                    <Button onClick={handleCreateLearningPath} disabled={isCreatingLearningPath} size="sm">
+                      {isCreatingLearningPath ? (
+                        <>
+                          <Loader2 className="mr-2 size-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="mr-2 size-4" />
+                          Create Learning Path
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -556,11 +589,8 @@ export function AssessmentTestClient({ topics, initialTopicId, initialCount }: A
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" onClick={() => setStep("result")} className="flex-1">
-              Back to Results
-            </Button>
-            <Button onClick={() => router.push("/student/learning-paths")} className="flex-1">
-              View Learning Path
+            <Button variant="outline" onClick={() => router.push("/student/learning-paths")} className="flex-1">
+              Back to Learning Paths
             </Button>
           </div>
         </div>

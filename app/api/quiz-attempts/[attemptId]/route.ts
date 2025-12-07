@@ -4,10 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // Get quiz attempt detail with questions and answers
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ attemptId: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ attemptId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -67,10 +64,7 @@ export async function GET(
     });
 
     if (!attempt) {
-      return NextResponse.json(
-        { error: "Quiz attempt not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Quiz attempt not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -106,18 +100,12 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching quiz attempt detail:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 // Update feedback for quiz attempt
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ attemptId: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ attemptId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -130,10 +118,7 @@ export async function PATCH(
     const { feedback } = body;
 
     if (!feedback || typeof feedback !== "string") {
-      return NextResponse.json(
-        { error: "Feedback is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Feedback is required" }, { status: 400 });
     }
 
     // Get quiz attempt to verify teacher owns the course
@@ -159,10 +144,7 @@ export async function PATCH(
     });
 
     if (!attempt) {
-      return NextResponse.json(
-        { error: "Quiz attempt not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Quiz attempt not found" }, { status: 404 });
     }
 
     // Update feedback
@@ -181,9 +163,6 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating quiz attempt feedback:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,8 @@ export function AssessmentQuestionsClient() {
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<AssessmentQuestion | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchTopics();
@@ -96,6 +98,17 @@ export function AssessmentQuestionsClient() {
     return matchesSearch && matchesTopic;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedTopic]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -119,8 +132,8 @@ export function AssessmentQuestionsClient() {
         </CardHeader>
         <CardContent>
           {/* Filters */}
-          <div className="mb-6 flex gap-4">
-            <div className="flex-1">
+          <div className="mb-6 flex flex-wrap gap-4">
+            <div className="min-w-64 flex-1">
               <div className="relative">
                 <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-400" />
                 <Input
@@ -142,6 +155,17 @@ export function AssessmentQuestionsClient() {
                     {topic.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5 per page</SelectItem>
+                <SelectItem value="10">10 per page</SelectItem>
+                <SelectItem value="20">20 per page</SelectItem>
+                <SelectItem value="50">50 per page</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -167,7 +191,7 @@ export function AssessmentQuestionsClient() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredQuestions.map((question) => (
+                  {paginatedQuestions.map((question) => (
                     <TableRow key={question.id}>
                       <TableCell className="max-w-md">
                         <p className="line-clamp-2">{question.text}</p>
@@ -198,6 +222,62 @@ export function AssessmentQuestionsClient() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {filteredQuestions.length > 0 && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-gray-500">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredQuestions.length)} of {filteredQuestions.length}{" "}
+                questions
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="size-4" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      // Show first page, last page, current page, and pages around current
+                      return page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
+                    })
+                    .map((page, index, array) => {
+                      // Add ellipsis between non-consecutive pages
+                      const prevPage = array[index - 1];
+                      const showEllipsis = prevPage && page - prevPage > 1;
+
+                      return (
+                        <div key={page} className="flex items-center">
+                          {showEllipsis && <span className="px-2 text-gray-400">...</span>}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="min-w-9"
+                          >
+                            {page}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

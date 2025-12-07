@@ -55,11 +55,7 @@ async function getQuizAttemptsData(quizId: string, studentId: string) {
   return quiz;
 }
 
-export default async function QuizAttemptsPage({
-  params,
-}: {
-  params: Promise<{ quizId: string }>;
-}) {
+export default async function QuizAttemptsPage({ params }: { params: Promise<{ quizId: string }> }) {
   const session = await getServerSession(authOptions);
 
   if (session?.user.role !== "student") {

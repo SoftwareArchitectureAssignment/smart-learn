@@ -37,44 +37,47 @@ interface DetailedResult {
   }[];
 }
 
-interface LearningPath {
+interface AssessmentAttempt {
   id: string;
-  title: string;
-  description: string | null;
-  status: string;
-  isEnrolled: boolean;
-  enrolledAt: string | null;
-  createdAt: string;
-  assessmentAttempt: {
-    topicId: string;
-    score: number;
-    totalScore: number;
-    totalQuestions: number;
-    answers: any;
-  };
-  courses: {
+  topicId: string;
+  score: number;
+  totalScore: number;
+  totalQuestions: number;
+  answers: any;
+  attemptedAt: string;
+  topic: {
     id: string;
-    order: number;
-    reason: string | null;
-    isCompleted: boolean;
-    course: {
+    name: string;
+  };
+  learningPath: {
+    id: string;
+    title: string;
+    description: string | null;
+    status: string;
+    courses: {
       id: string;
-      title: string;
-      description: string | null;
-      thumbnail: string | null;
-    };
-  }[];
+      order: number;
+      reason: string | null;
+      isCompleted: boolean;
+      course: {
+        id: string;
+        title: string;
+        description: string | null;
+        thumbnail: string | null;
+      };
+    }[];
+  } | null;
 }
 
 interface LearningPathsClientProps {
   topics: Topic[];
-  initialLearningPaths: LearningPath[];
+  assessmentAttempts: AssessmentAttempt[];
   enrolledCourseIds: string[];
 }
 
-export function LearningPathsClient({ topics, initialLearningPaths, enrolledCourseIds }: LearningPathsClientProps) {
+export function LearningPathsClient({ topics, assessmentAttempts, enrolledCourseIds }: LearningPathsClientProps) {
   const router = useRouter();
-  const [learningPaths, setLearningPaths] = useState<LearningPath[]>(initialLearningPaths);
+  const [attempts, setAttempts] = useState<AssessmentAttempt[]>(assessmentAttempts);
   const [enrolledCourses, setEnrolledCourses] = useState<Set<string>>(new Set(enrolledCourseIds));
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
 
@@ -167,7 +170,7 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
       </div>
 
       {/* Stats */}
-      {learningPaths.length > 0 && (
+      {attempts.length > 0 && (
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -175,7 +178,7 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
               <Target className="text-muted-foreground size-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{learningPaths.length}</div>
+              <div className="text-2xl font-bold">{attempts.length}</div>
             </CardContent>
           </Card>
 
@@ -186,7 +189,9 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {learningPaths.reduce((sum, path) => sum + path.courses.length, 0)}
+                {attempts
+                  .filter((a) => a.learningPath?.courses)
+                  .reduce((sum, a) => sum + (a.learningPath?.courses.length || 0), 0)}
               </div>
             </CardContent>
           </Card>
@@ -203,8 +208,8 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
         </div>
       )}
 
-      {/* Learning Paths List */}
-      {learningPaths.length === 0 ? (
+      {/* Assessment Attempts List */}
+      {attempts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Brain className="mb-4 size-16 text-gray-400" />
@@ -220,25 +225,27 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
         </Card>
       ) : (
         <div className="space-y-6">
-          {learningPaths.map((path) => {
-            const percentage = Math.round((path.assessmentAttempt.score / path.assessmentAttempt.totalScore) * 100);
+          {attempts.map((attempt) => {
+            const percentage = Math.round((attempt.score / attempt.totalScore) * 100);
             const feedback = getFeedback(percentage);
-            const isExpanded = expandedPaths.has(path.id);
-            const unenrolledCourses = path.courses.filter((c) => !enrolledCourses.has(c.course.id));
+            const hasLearningPath = attempt.learningPath && attempt.learningPath.courses.length > 0;
+            const isExpanded = expandedPaths.has(attempt.learningPath?.id || "");
+            const unenrolledCourses = hasLearningPath
+              ? attempt.learningPath!.courses.filter((c) => !enrolledCourses.has(c.course.id))
+              : [];
 
             return (
-              <Card key={path.id}>
+              <Card key={attempt.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <CardTitle className="text-2xl">{path.title}</CardTitle>
+                        <CardTitle className="text-2xl">{attempt.topic.name} Assessment</CardTitle>
                         <Badge className={`${feedback.bgColor} ${feedback.color}`}>{feedback.level}</Badge>
                       </div>
-                      <CardDescription className="mt-2">{path.description}</CardDescription>
-                      <p className="mt-2 text-sm text-gray-500">
-                        Assessment taken on {new Date(path.createdAt).toLocaleDateString()}
-                      </p>
+                      {hasLearningPath && (
+                        <CardDescription className="mt-2">{attempt.learningPath!.description}</CardDescription>
+                      )}
                     </div>
                   </div>
 
@@ -252,22 +259,20 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
                       <div className="text-right">
                         <p className={`text-4xl font-bold ${feedback.color}`}>{percentage}%</p>
                         <p className={`text-sm ${feedback.color}`}>
-                          {path.assessmentAttempt.score} / {path.assessmentAttempt.totalScore} points
+                          {attempt.score} / {attempt.totalScore} points
                         </p>
-                        <p className={`mt-1 text-xs ${feedback.color}`}>
-                          {path.assessmentAttempt.totalQuestions} questions
-                        </p>
+                        <p className={`mt-1 text-xs ${feedback.color}`}>{attempt.totalQuestions} questions</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="mt-4 flex gap-2">
-                    {unenrolledCourses.length > 0 && (
+                    {hasLearningPath && unenrolledCourses.length > 0 && (
                       <Button
                         onClick={() =>
                           handleEnrollAll(
-                            path.id,
+                            attempt.learningPath!.id,
                             unenrolledCourses.map((c) => c.course.id),
                           )
                         }
@@ -277,9 +282,10 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
                         Enroll All Recommended Courses ({unenrolledCourses.length})
                       </Button>
                     )}
+
                     <Button
                       variant="outline"
-                      onClick={() => router.push(`/student/learning-paths/${path.id}/review`)}
+                      onClick={() => router.push(`/student/learning-paths/${attempt.learningPath!.id}/review`)}
                       className={unenrolledCourses.length > 0 ? "" : "flex-1"}
                     >
                       <Eye className="mr-2 size-4" />
@@ -288,91 +294,95 @@ export function LearningPathsClient({ topics, initialLearningPaths, enrolledCour
                   </div>
                 </CardHeader>
                 {/* Recommended Courses */}
-                <CardContent>
-                  <Collapsible open={isExpanded}>
-                    <CollapsibleTrigger
-                      onClick={() => toggleExpanded(path.id)}
-                      className="flex w-full items-center justify-between"
-                    >
-                      <h4 className="font-semibold text-gray-900">
-                        Recommended Learning Path ({path.courses.length} courses)
-                      </h4>
-                      {isExpanded ? (
-                        <ChevronUp className="size-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="size-5 text-gray-400" />
-                      )}
-                    </CollapsibleTrigger>
+                {hasLearningPath && (
+                  <CardContent>
+                    <Collapsible open={isExpanded}>
+                      <CollapsibleTrigger
+                        onClick={() => toggleExpanded(attempt.learningPath!.id)}
+                        className="flex w-full items-center justify-between"
+                      >
+                        <h4 className="font-semibold text-gray-900">
+                          Recommended Learning Path ({attempt.learningPath!.courses.length} courses)
+                        </h4>
+                        {isExpanded ? (
+                          <ChevronUp className="size-5 text-gray-400" />
+                        ) : (
+                          <ChevronDown className="size-5 text-gray-400" />
+                        )}
+                      </CollapsibleTrigger>
 
-                    <CollapsibleContent className="mt-4 space-y-4">
-                      {path.courses
-                        .sort((a, b) => a.order - b.order)
-                        .map((pathCourse) => {
-                          const isEnrolled = enrolledCourses.has(pathCourse.course.id);
+                      <CollapsibleContent className="mt-4 space-y-4">
+                        {attempt
+                          .learningPath!.courses.sort((a, b) => a.order - b.order)
+                          .map((pathCourse) => {
+                            const isEnrolled = enrolledCourses.has(pathCourse.course.id);
 
-                          return (
-                            <div key={pathCourse.id} className="flex items-start gap-4 rounded-lg border p-4">
-                              {/* Course Image */}
-                              <div className="shrink-0">
-                                {pathCourse.course.thumbnail ? (
-                                  <img
-                                    src={pathCourse.course.thumbnail}
-                                    alt={pathCourse.course.title}
-                                    className="size-20 rounded object-cover"
-                                  />
-                                ) : (
-                                  <div className="flex size-20 items-center justify-center rounded bg-gray-100">
-                                    <BookOpen className="size-8 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
+                            return (
+                              <div key={pathCourse.id} className="flex items-start gap-4 rounded-lg border p-4">
+                                {/* Course Image */}
+                                <div className="shrink-0">
+                                  {pathCourse.course.thumbnail ? (
+                                    <img
+                                      src={pathCourse.course.thumbnail}
+                                      alt={pathCourse.course.title}
+                                      className="size-20 rounded object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex size-20 items-center justify-center rounded bg-gray-100">
+                                      <BookOpen className="size-8 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
 
-                              {/* Course Info */}
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                      <Badge variant="outline">Step {pathCourse.order}</Badge>
-                                      {isEnrolled && (
-                                        <Badge className="bg-green-100 text-green-800">
-                                          <CheckCircle2 className="mr-1 size-3" />
-                                          Enrolled
-                                        </Badge>
+                                {/* Course Info */}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <Badge variant="outline">Step {pathCourse.order}</Badge>
+                                        {isEnrolled && (
+                                          <Badge className="bg-green-100 text-green-800">
+                                            <CheckCircle2 className="mr-1 size-3" />
+                                            Enrolled
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <h5 className="mt-2 font-semibold text-gray-900">{pathCourse.course.title}</h5>
+                                      <p className="mt-1 text-sm text-gray-600">{pathCourse.course.description}</p>
+                                      {pathCourse.reason && (
+                                        <p className="mt-2 text-sm text-blue-600 italic">💡 {pathCourse.reason}</p>
                                       )}
                                     </div>
-                                    <h5 className="mt-2 font-semibold text-gray-900">{pathCourse.course.title}</h5>
-                                    <p className="mt-1 text-sm text-gray-600">{pathCourse.course.description}</p>
-                                    {pathCourse.reason && (
-                                      <p className="mt-2 text-sm text-blue-600 italic">💡 {pathCourse.reason}</p>
-                                    )}
-                                  </div>
-                                  <div className="flex shrink-0 gap-2">
-                                    {!isEnrolled && (
-                                      <Button
-                                        onClick={() => handleEnrollCourse(path.id, pathCourse.course.id)}
-                                        size="sm"
-                                      >
-                                        Enroll
-                                      </Button>
-                                    )}
-                                    {isEnrolled && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => router.push(`/student/courses/${pathCourse.course.id}`)}
-                                      >
-                                        View Course
-                                      </Button>
-                                    )}
+                                    <div className="flex shrink-0 gap-2">
+                                      {!isEnrolled && (
+                                        <Button
+                                          onClick={() =>
+                                            handleEnrollCourse(attempt.learningPath!.id, pathCourse.course.id)
+                                          }
+                                          size="sm"
+                                        >
+                                          Enroll
+                                        </Button>
+                                      )}
+                                      {isEnrolled && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => router.push(`/student/courses/${pathCourse.course.id}`)}
+                                        >
+                                          View Course
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </CardContent>
+                            );
+                          })}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </CardContent>
+                )}
               </Card>
             );
           })}

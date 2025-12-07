@@ -39,7 +39,7 @@ export default function LoginPage() {
       // Fetch session to get user role
       const response = await fetch("/api/auth/session");
       const session = await response.json();
-      
+
       if (session?.user?.role) {
         const role = session.user.role.toLowerCase();
         router.push(`/${role}/dashboard`);

@@ -25,41 +25,55 @@ export default async function StudentLearningPathsPage() {
     },
   });
 
-  // Fetch user's learning paths
-  const learningPaths = await prisma.learningPath.findMany({
+  // Fetch all assessment attempts
+  const assessmentAttempts = await prisma.assessmentAttempt.findMany({
     where: {
       studentId: user.id,
     },
     include: {
-      assessmentAttempt: {
-        select: {
-          topicId: true,
-          score: true,
-          totalScore: true,
-          totalQuestions: true,
-          answers: true,
-        },
-      },
-      courses: {
+      learningPath: {
         include: {
-          course: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              thumbnail: true,
+          courses: {
+            include: {
+              course: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  thumbnail: true,
+                },
+              },
+            },
+            orderBy: {
+              order: "asc",
             },
           },
-        },
-        orderBy: {
-          order: "asc",
         },
       },
     },
     orderBy: {
-      createdAt: "desc",
+      attemptedAt: "desc",
     },
   });
+
+  // Fetch topics for the assessment attempts
+  const topicIds = [...new Set(assessmentAttempts.map((a) => a.topicId))];
+  const topicsMap = await prisma.topic.findMany({
+    where: {
+      id: { in: topicIds },
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  // Map topics to assessment attempts
+  const topicsById = new Map(topicsMap.map((t) => [t.id, t]));
+  const attemptsWithTopics = assessmentAttempts.map((attempt) => ({
+    ...attempt,
+    topic: topicsById.get(attempt.topicId) || { id: attempt.topicId, name: "Unknown Topic" },
+  }));
 
   // Get user's enrollments for all courses
   const enrollments = await prisma.enrollment.findMany({
@@ -77,7 +91,7 @@ export default async function StudentLearningPathsPage() {
     <div className="p-8">
       <LearningPathsClient
         topics={topics}
-        initialLearningPaths={JSON.parse(JSON.stringify(learningPaths))}
+        assessmentAttempts={JSON.parse(JSON.stringify(attemptsWithTopics))}
         enrolledCourseIds={Array.from(enrolledCourseIds)}
       />
     </div>
