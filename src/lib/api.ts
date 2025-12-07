@@ -24,6 +24,8 @@ apiInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+let isRefreshing = false;
+
 apiInstance.interceptors.response.use(
   (response) => response,
   async (error: any) => {
@@ -32,10 +34,16 @@ apiInstance.interceptors.response.use(
 
       // Handle auth errors
       if (status === 401) {
-        if (!window.location.pathname.startsWith("/login") && !isPublicRoute(window.location.pathname)) {
-          toast.error("Session expired. Please login again.", { duration: 3000 });
-          localStorage.removeItem("accessToken");
-          navigate("/login");
+        if (!window.location.pathname.startsWith("/sign-in") && !isPublicRoute(window.location.pathname)) {
+          if (!isRefreshing) {
+            isRefreshing = true;
+            localStorage.removeItem("accessToken");
+            toast.error("Session expired. Please log in again.", { duration: 3000 });
+            navigate("/login");
+            setTimeout(() => {
+              isRefreshing = false;
+            }, 1000);
+          }
         }
       }
     }

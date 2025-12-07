@@ -12,7 +12,7 @@ import { z } from "zod";
 const registerSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
-    email: z.string().email("Please enter a valid email address"),
+    email: z.email("Please enter a valid email address"),
     phoneNumber: z
       .string()
       .min(10, "Phone number must be at least 10 characters")
@@ -27,14 +27,14 @@ const registerSchema = z
   });
 
 export default function Register() {
-  const { register, loading } = useAuth();
+  const { register, isRegistering } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [role, setRole] = useState("STUDENT");
+  const [role, setRole] = useState<"STUDENT" | "TEACHER" | "ADMIN">("STUDENT");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -70,7 +70,7 @@ export default function Register() {
       return;
     }
 
-    await register(email, name, password, phoneNumber, role);
+    await register({ email, name, password, phone: phoneNumber, role });
   };
 
   return (
@@ -78,7 +78,7 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="Smart Learn" className="h-10 w-10" />
+            <img src="/logo.png" alt="Smart Learn" className="h-10 w-10" />
             <span className="text-3xl font-bold text-gray-900">Smart Learn</span>
           </Link>
         </div>
@@ -131,7 +131,7 @@ export default function Register() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select value={role} onValueChange={setRole}>
+                <Select value={role} onValueChange={(value) => setRole(value as "STUDENT" | "TEACHER" | "ADMIN")}>
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>

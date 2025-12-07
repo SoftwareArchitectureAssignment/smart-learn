@@ -56,7 +56,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="Smart Learn" className="h-10 w-10" />
+            <img src="/logo.png" alt="Smart Learn" className="h-10 w-10" />
             <span className="text-3xl font-bold text-gray-900">Smart Learn</span>
           </Link>
         </div>

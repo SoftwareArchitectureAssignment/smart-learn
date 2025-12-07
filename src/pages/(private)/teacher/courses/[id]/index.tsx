@@ -11,7 +11,7 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const course = mockCourses.find((c) => c.id === id);
+  const course = mockCourses.find((c) => c.id === Number(id));
 
   if (!course) {
     return (
@@ -61,7 +61,7 @@ export default function CourseDetail() {
         <div className="sticky top-0 z-10 border-b bg-white">
           <div className="px-8 py-4">
             <button
-              onClick={() => navigate("/courses")}
+              onClick={() => navigate("/teacher/courses")}
               className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -73,17 +73,12 @@ export default function CourseDetail() {
                 <h1 className="mb-1 text-2xl font-bold text-gray-900">{course.title}</h1>
                 <p className="text-sm text-gray-600">{course.description}</p>
               </div>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  course.status === "Active"
-                    ? "bg-green-100 text-green-800"
-                    : course.status === "Draft"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {course.status}
-              </span>
+              {course.instructor && (
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">Giảng viên</p>
+                  <p className="font-semibold text-gray-900">{course.instructor}</p>
+                </div>
+              )}
             </div>
 
             {/* Tabs */}

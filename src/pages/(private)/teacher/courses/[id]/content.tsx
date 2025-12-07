@@ -1,20 +1,21 @@
-import { useState } from "react";
-import type { Course } from "@/data/courses";
+import { useState, useEffect } from "react";
+import { mockCourseWithContent } from "@/data/courses";
+import type { ICourse } from "@/types/course.type";
+import type { ISection } from "@/types/section.type";
+import type { IContent, ContentType } from "@/types/content.type";
+import type { IQuestion } from "@/types/question.type";
 import {
   ChevronDown,
   ChevronRight,
   Play,
   FileText,
-  Image,
   FileQuestion,
-  StickyNote,
   Plus,
   Edit,
   Trash2,
   GripVertical,
   Clock,
   BookOpen,
-  Upload,
   ExternalLink,
   Eye,
 } from "lucide-react";
@@ -32,177 +33,73 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface QuizQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  explanation?: string;
-}
-
-interface ContentItem {
-  id: string;
-  title: string;
-  type: "video" | "file" | "image" | "note" | "quiz";
-  duration?: string;
-  description?: string;
-  fileSize?: string;
-  uploadDate?: Date;
-  // For video/file
-  url?: string;
-  // For quiz
-  questions?: QuizQuestion[];
-  passingScore?: number;
-  timeLimit?: number; // in minutes
-}
-
-interface Section {
-  id: string;
-  title: string;
-  items: ContentItem[];
+// UI Interface for managing sections with expanded state
+interface UISection extends ISection {
   isExpanded: boolean;
 }
 
-const mockSections: Section[] = [
-  {
-    id: "1",
-    title: "Chương 1: Giới thiệu",
-    isExpanded: true,
-    items: [
-      {
-        id: "1-1",
-        title: "Video: Tổng quan Python",
-        type: "video",
-        duration: "15:30",
-        uploadDate: new Date(2025, 9, 1),
-        url: "https://www.youtube.com/watch?v=rfscVS0vtbw",
-      },
-      {
-        id: "1-2",
-        title: "Tài liệu: Cài đặt môi trường",
-        type: "file",
-        fileSize: "2.5 MB (PDF)",
-        uploadDate: new Date(2025, 9, 2),
-        url: "https://docs.python.org/3/tutorial/",
-      },
-      {
-        id: "1-3",
-        title: "Quiz: Kiểm tra kiến thức",
-        type: "quiz",
-        duration: "5 câu",
-        description: "Kiểm tra kiến thức cơ bản về Python",
-        uploadDate: new Date(2025, 9, 3),
-        timeLimit: 30,
-        passingScore: 70,
-        questions: [
-          {
-            id: "q1",
-            question: "Python là ngôn ngữ lập trình gì?",
-            options: ["Compiled", "Interpreted", "Assembly", "Machine code"],
-            correctAnswer: 1,
-            explanation: "Python là ngôn ngữ thông dịch (interpreted), mã nguồn được thực thi trực tiếp.",
-          },
-          {
-            id: "q2",
-            question: "Kiểu dữ liệu nào sau đây là immutable trong Python?",
-            options: ["List", "Dictionary", "Tuple", "Set"],
-            correctAnswer: 2,
-            explanation: "Tuple là kiểu dữ liệu bất biến (immutable) trong Python.",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Chương 2: Biến và kiểu dữ liệu",
-    isExpanded: false,
-    items: [
-      {
-        id: "2-1",
-        title: "Video: Biến trong Python",
-        type: "video",
-        duration: "20:15",
-        uploadDate: new Date(2025, 9, 5),
-        url: "https://www.youtube.com/watch?v=example2",
-      },
-      {
-        id: "2-2",
-        title: "Note: Ghi chú quan trọng",
-        type: "note",
-        description: "Các kiểu dữ liệu cơ bản trong Python",
-        uploadDate: new Date(2025, 9, 6),
-      },
-      {
-        id: "2-3",
-        title: "Hình ảnh: Sơ đồ kiểu dữ liệu",
-        type: "image",
-        fileSize: "850 KB (PNG)",
-        uploadDate: new Date(2025, 9, 7),
-        url: "https://via.placeholder.com/800x600/4CAF50/FFFFFF?text=Python+Data+Types",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Chương 3: Cấu trúc điều khiển",
-    isExpanded: false,
-    items: [
-      {
-        id: "3-1",
-        title: "Video: If-else statement",
-        type: "video",
-        duration: "18:45",
-        uploadDate: new Date(2025, 9, 10),
-        url: "https://www.youtube.com/watch?v=example3",
-      },
-      {
-        id: "3-2",
-        title: "Tài liệu: Bài tập thực hành",
-        type: "file",
-        fileSize: "1.8 MB (PDF)",
-        uploadDate: new Date(2025, 9, 11),
-        url: "https://example.com/python-exercises.pdf",
-      },
-    ],
-  },
-];
+// Helper functions to format data
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+// Convert ICourse sections to UI sections with expanded state
+const convertToUISections = (sections: ISection[]): UISection[] => {
+  return sections.map((section, index) => ({
+    ...section,
+    isExpanded: index === 0, // First section expanded by default
+  }));
+};
 
 interface CourseContentProps {
-  course: Course;
+  course?: ICourse;
 }
 
 export default function CourseContent({}: CourseContentProps) {
-  const [sections, setSections] = useState<Section[]>(mockSections);
+  const [sections, setSections] = useState<UISection[]>([]);
+
+  // Initialize sections from mock data
+  useEffect(() => {
+    setSections(convertToUISections(mockCourseWithContent.sections));
+  }, []);
+
   const [editMode, setEditMode] = useState(false);
 
   // Section modal state
   const [sectionModalOpen, setSectionModalOpen] = useState(false);
-  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [editingSectionId, setEditingSectionId] = useState<number | null>(null);
   const [sectionTitle, setSectionTitle] = useState("");
 
   // Content modal state
   const [contentModalOpen, setContentModalOpen] = useState(false);
-  const [editingContentId, setEditingContentId] = useState<string | null>(null);
-  const [editingSectionForContent, setEditingSectionForContent] = useState<string | null>(null);
+  const [editingContentId, setEditingContentId] = useState<number | null>(null);
+  const [editingSectionForContent, setEditingSectionForContent] = useState<number | null>(null);
   const [contentData, setContentData] = useState({
     title: "",
-    type: "video" as ContentItem["type"],
+    type: "video" as ContentType,
     duration: "",
     description: "",
     fileSize: "",
     url: "",
     // Quiz fields
-    questions: [] as QuizQuestion[],
+    questions: [] as IQuestion[],
     passingScore: 70,
     timeLimit: 30,
   });
 
   // View quiz modal state
   const [viewQuizModalOpen, setViewQuizModalOpen] = useState(false);
-  const [viewingQuizItem, setViewingQuizItem] = useState<ContentItem | null>(null);
+  const [viewingQuizItem, setViewingQuizItem] = useState<IContent | null>(null);
 
-  const toggleSection = (sectionId: string) => {
+  const toggleSection = (sectionId: number) => {
     setSections((prev) =>
       prev.map((section) => (section.id === sectionId ? { ...section, isExpanded: !section.isExpanded } : section)),
     );
@@ -215,7 +112,7 @@ export default function CourseContent({}: CourseContentProps) {
     setSectionModalOpen(true);
   };
 
-  const handleEditSection = (sectionId: string, title: string) => {
+  const handleEditSection = (sectionId: number, title: string) => {
     setEditingSectionId(sectionId);
     setSectionTitle(title);
     setSectionModalOpen(true);
@@ -231,10 +128,11 @@ export default function CourseContent({}: CourseContentProps) {
       );
     } else {
       // Add new section
-      const newSection: Section = {
-        id: Date.now().toString(),
+      const newSection: UISection = {
+        id: Date.now(),
         title: sectionTitle,
-        items: [],
+        orderIndex: sections.length + 1,
+        contents: [],
         isExpanded: true,
       };
       setSections((prev) => [...prev, newSection]);
@@ -243,14 +141,14 @@ export default function CourseContent({}: CourseContentProps) {
     setSectionTitle("");
   };
 
-  const handleDeleteSection = (sectionId: string) => {
+  const handleDeleteSection = (sectionId: number) => {
     if (confirm("Bạn có chắc muốn xóa chương này?")) {
       setSections((prev) => prev.filter((section) => section.id !== sectionId));
     }
   };
 
   // Content handlers
-  const handleAddContent = (sectionId: string) => {
+  const handleAddContent = (sectionId: number) => {
     setEditingContentId(null);
     setEditingSectionForContent(sectionId);
     setContentData({
@@ -267,39 +165,108 @@ export default function CourseContent({}: CourseContentProps) {
     setContentModalOpen(true);
   };
 
-  const handleEditContent = (sectionId: string, item: ContentItem) => {
+  const handleEditContent = (sectionId: number, item: IContent) => {
     setEditingContentId(item.id);
     setEditingSectionForContent(sectionId);
-    setContentData({
-      title: item.title,
-      type: item.type,
-      duration: item.duration || "",
-      description: item.description || "",
-      fileSize: item.fileSize || "",
-      url: item.url || "",
-      questions: item.questions || [],
-      passingScore: item.passingScore || 70,
-      timeLimit: item.timeLimit || 30,
-    });
+
+    if (item.type === "video") {
+      setContentData({
+        title: item.title,
+        type: item.type,
+        duration: formatDuration(item.duration),
+        description: item.description || "",
+        fileSize: "",
+        url: item.url,
+        questions: [],
+        passingScore: 70,
+        timeLimit: 30,
+      });
+    } else if (item.type === "document") {
+      setContentData({
+        title: item.title,
+        type: item.type,
+        duration: "",
+        description: item.description || "",
+        fileSize: item.fileSize ? formatFileSize(item.fileSize) : "",
+        url: item.fileUrl,
+        questions: [],
+        passingScore: 70,
+        timeLimit: 30,
+      });
+    } else if (item.type === "quiz") {
+      setContentData({
+        title: item.title,
+        type: item.type,
+        duration: "",
+        description: item.description,
+        fileSize: "",
+        url: "",
+        questions: item.questions,
+        passingScore: item.passingScore,
+        timeLimit: item.durationMinutes,
+      });
+    }
     setContentModalOpen(true);
   };
 
   const handleSaveContent = () => {
     if (!contentData.title.trim() || !editingSectionForContent) return;
 
-    const newItem: ContentItem = {
-      id: editingContentId || Date.now().toString(),
-      title: contentData.title,
-      type: contentData.type,
-      duration: contentData.duration || undefined,
-      description: contentData.description || undefined,
-      fileSize: contentData.fileSize || undefined,
-      uploadDate: new Date(),
-      url: contentData.url || undefined,
-      questions: contentData.type === "quiz" ? contentData.questions : undefined,
-      passingScore: contentData.type === "quiz" ? contentData.passingScore : undefined,
-      timeLimit: contentData.type === "quiz" ? contentData.timeLimit : undefined,
-    };
+    let newItem: IContent;
+    const orderIndex = editingContentId
+      ? sections.find((s) => s.id === editingSectionForContent)?.contents.find((c) => c.id === editingContentId)
+          ?.orderIndex || 1
+      : (sections.find((s) => s.id === editingSectionForContent)?.contents.length || 0) + 1;
+
+    if (contentData.type === "video") {
+      // Parse duration from MM:SS to seconds
+      const [mins, secs] = contentData.duration.split(":").map(Number);
+      const durationInSeconds = (mins || 0) * 60 + (secs || 0);
+
+      newItem = {
+        id: editingContentId || Date.now(),
+        title: contentData.title,
+        type: "video",
+        orderIndex,
+        url: contentData.url,
+        duration: durationInSeconds,
+        description: contentData.description || undefined,
+      };
+    } else if (contentData.type === "document") {
+      // Parse file size
+      const fileSizeMatch = contentData.fileSize.match(/([0-9.]+)\s*(MB|KB|B)/i);
+      let fileSizeInBytes = 0;
+      if (fileSizeMatch) {
+        const size = parseFloat(fileSizeMatch[1]);
+        const unit = fileSizeMatch[2].toUpperCase();
+        if (unit === "MB") fileSizeInBytes = size * 1024 * 1024;
+        else if (unit === "KB") fileSizeInBytes = size * 1024;
+        else fileSizeInBytes = size;
+      }
+
+      newItem = {
+        id: editingContentId || Date.now(),
+        title: contentData.title,
+        type: "document",
+        orderIndex,
+        fileUrl: contentData.url,
+        fileType: "pdf",
+        fileSize: fileSizeInBytes || undefined,
+        description: contentData.description || undefined,
+      };
+    } else {
+      // quiz
+      newItem = {
+        id: editingContentId || Date.now(),
+        title: contentData.title,
+        type: "quiz",
+        orderIndex,
+        description: contentData.description,
+        durationMinutes: contentData.timeLimit,
+        passingScore: contentData.passingScore,
+        questions: contentData.questions,
+      };
+    }
 
     setSections((prev) =>
       prev.map((section) => {
@@ -308,13 +275,13 @@ export default function CourseContent({}: CourseContentProps) {
             // Edit existing content
             return {
               ...section,
-              items: section.items.map((item) => (item.id === editingContentId ? newItem : item)),
+              contents: section.contents.map((item) => (item.id === editingContentId ? newItem : item)),
             };
           } else {
             // Add new content
             return {
               ...section,
-              items: [...section.items, newItem],
+              contents: [...section.contents, newItem],
             };
           }
         }
@@ -336,14 +303,14 @@ export default function CourseContent({}: CourseContentProps) {
     });
   };
 
-  const handleDeleteContent = (sectionId: string, contentId: string) => {
+  const handleDeleteContent = (sectionId: number, contentId: number) => {
     if (confirm("Bạn có chắc muốn xóa nội dung này?")) {
       setSections((prev) =>
         prev.map((section) => {
           if (section.id === sectionId) {
             return {
               ...section,
-              items: section.items.filter((item) => item.id !== contentId),
+              contents: section.contents.filter((item) => item.id !== contentId),
             };
           }
           return section;
@@ -352,16 +319,12 @@ export default function CourseContent({}: CourseContentProps) {
     }
   };
 
-  const getContentIcon = (type: ContentItem["type"]) => {
+  const getContentIcon = (type: ContentType) => {
     switch (type) {
       case "video":
         return Play;
-      case "file":
+      case "document":
         return FileText;
-      case "image":
-        return Image;
-      case "note":
-        return StickyNote;
       case "quiz":
         return FileQuestion;
       default:
@@ -369,16 +332,12 @@ export default function CourseContent({}: CourseContentProps) {
     }
   };
 
-  const getContentColor = (type: ContentItem["type"]) => {
+  const getContentColor = (type: ContentType) => {
     switch (type) {
       case "video":
         return "text-blue-600 bg-blue-50";
-      case "file":
+      case "document":
         return "text-red-600 bg-red-50";
-      case "image":
-        return "text-green-600 bg-green-50";
-      case "note":
-        return "text-yellow-600 bg-yellow-50";
       case "quiz":
         return "text-purple-600 bg-purple-50";
       default:
@@ -386,7 +345,18 @@ export default function CourseContent({}: CourseContentProps) {
     }
   };
 
-  const totalItems = sections.reduce((acc, section) => acc + section.items.length, 0);
+  const getContentMeta = (item: IContent): string => {
+    if (item.type === "video") {
+      return formatDuration(item.duration);
+    } else if (item.type === "document") {
+      return item.fileSize ? formatFileSize(item.fileSize) : "";
+    } else if (item.type === "quiz") {
+      return `${item.questions.length} câu`;
+    }
+    return "";
+  };
+
+  const totalItems = sections.reduce((acc, section) => acc + section.contents.length, 0);
 
   return (
     <div className="max-w-5xl">
@@ -467,7 +437,7 @@ export default function CourseContent({}: CourseContentProps) {
                 </button>
                 <div>
                   <h3 className="font-semibold text-gray-900">{section.title}</h3>
-                  <p className="text-sm text-gray-600">{section.items.length} nội dung</p>
+                  <p className="text-sm text-gray-600">{section.contents.length} nội dung</p>
                 </div>
               </div>
               {editMode && (
@@ -491,9 +461,10 @@ export default function CourseContent({}: CourseContentProps) {
             {/* Section Items */}
             {section.isExpanded && (
               <div className="bg-gray-50">
-                {section.items.map((item) => {
+                {section.contents.map((item) => {
                   const Icon = getContentIcon(item.type);
                   const colorClass = getContentColor(item.type);
+                  const meta = getContentMeta(item);
 
                   return (
                     <div
@@ -511,19 +482,19 @@ export default function CourseContent({}: CourseContentProps) {
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-gray-900">{item.title}</h4>
                         <div className="mt-1 flex items-center gap-3 text-sm text-gray-600">
-                          {item.duration && (
+                          {meta && (
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              {item.duration}
+                              {meta}
                             </span>
                           )}
-                          {item.fileSize && <span className="text-gray-500">{item.fileSize}</span>}
-                          {item.description && <span className="truncate">{item.description}</span>}
-                          {item.uploadDate && !editMode && (
-                            <span className="text-xs text-gray-400">
-                              • {item.uploadDate.toLocaleDateString("vi-VN")}
-                            </span>
+                          {item.type === "video" && item.description && (
+                            <span className="truncate">{item.description}</span>
                           )}
+                          {item.type === "document" && item.description && (
+                            <span className="truncate">{item.description}</span>
+                          )}
+                          {item.type === "quiz" && <span className="truncate">{item.description}</span>}
                         </div>
                       </div>
 
@@ -545,45 +516,51 @@ export default function CourseContent({}: CourseContentProps) {
                           </Button>
                         )}
 
-                        {/* View button for video/file/image with URL */}
-                        {(item.type === "video" || item.type === "file" || item.type === "image") &&
-                          item.url &&
-                          !editMode && (
+                        {/* View button for video/document with URL */}
+                        {item.type === "video" && !editMode && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-700"
+                            onClick={() => window.open(item.url, "_blank")}
+                          >
+                            <ExternalLink className="mr-1 h-4 w-4" />
+                            Xem
+                          </Button>
+                        )}
+
+                        {item.type === "document" && !editMode && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-700"
+                            onClick={() => window.open(item.fileUrl, "_blank")}
+                          >
+                            <ExternalLink className="mr-1 h-4 w-4" />
+                            Xem
+                          </Button>
+                        )}
+
+                        {editMode && (
+                          <>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-blue-600 hover:text-blue-700"
-                              onClick={() => window.open(item.url, "_blank")}
+                              className="opacity-0 group-hover:opacity-100"
+                              onClick={() => handleEditContent(section.id, item)}
                             >
-                              <ExternalLink className="mr-1 h-4 w-4" />
-                              Xem
+                              <Edit className="h-4 w-4" />
                             </Button>
-                          )}
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100"
-                          onClick={() => handleEditContent(section.id, item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100"
-                          onClick={() => handleEditContent(section.id, item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 opacity-0 group-hover:opacity-100 hover:text-red-700"
-                          onClick={() => handleDeleteContent(section.id, item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 opacity-0 group-hover:opacity-100 hover:text-red-700"
+                              onClick={() => handleDeleteContent(section.id, item.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   );
@@ -643,7 +620,7 @@ export default function CourseContent({}: CourseContentProps) {
           <DialogHeader>
             <DialogTitle>{editingContentId ? "Chỉnh sửa nội dung" : "Thêm nội dung mới"}</DialogTitle>
             <DialogDescription>
-              {editingContentId ? "Cập nhật thông tin nội dung" : "Thêm video, tài liệu, quiz hoặc ghi chú vào chương"}
+              {editingContentId ? "Cập nhật thông tin nội dung" : "Thêm video, tài liệu, hoặc quiz vào chương"}
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 space-y-4 overflow-y-auto py-4">
@@ -651,7 +628,7 @@ export default function CourseContent({}: CourseContentProps) {
               <Label htmlFor="content-type">Loại nội dung *</Label>
               <Select
                 value={contentData.type}
-                onValueChange={(value) => setContentData({ ...contentData, type: value as ContentItem["type"] })}
+                onValueChange={(value) => setContentData({ ...contentData, type: value as ContentType })}
               >
                 <SelectTrigger className="mt-2">
                   <SelectValue />
@@ -663,22 +640,10 @@ export default function CourseContent({}: CourseContentProps) {
                       <span>Video</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="file">
+                  <SelectItem value="document">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-red-600" />
                       <span>Tài liệu / File</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="image">
-                    <div className="flex items-center gap-2">
-                      <Image className="h-4 w-4 text-green-600" />
-                      <span>Hình ảnh</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="note">
-                    <div className="flex items-center gap-2">
-                      <StickyNote className="h-4 w-4 text-yellow-600" />
-                      <span>Ghi chú</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="quiz">
@@ -703,12 +668,12 @@ export default function CourseContent({}: CourseContentProps) {
             </div>
 
             {/* Dynamic fields based on content type */}
-            {(contentData.type === "video" || contentData.type === "file") && (
+            {(contentData.type === "video" || contentData.type === "document") && (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="content-duration">
-                      {contentData.type === "video" ? "Thời lượng" : "Thời gian đọc ước tính"}
+                      {contentData.type === "video" ? "Thời lượng (MM:SS)" : "Thời gian đọc"}
                     </Label>
                     <Input
                       id="content-duration"
@@ -723,7 +688,7 @@ export default function CourseContent({}: CourseContentProps) {
                     <Label htmlFor="content-filesize">Kích thước</Label>
                     <Input
                       id="content-filesize"
-                      placeholder="VD: 125 MB"
+                      placeholder="VD: 2.5 MB"
                       value={contentData.fileSize}
                       onChange={(e) => setContentData({ ...contentData, fileSize: e.target.value })}
                       className="mt-2"
@@ -732,9 +697,7 @@ export default function CourseContent({}: CourseContentProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="content-url">
-                    {contentData.type === "video" ? "URL Video hoặc Upload" : "URL File hoặc Upload"}
-                  </Label>
+                  <Label htmlFor="content-url">{contentData.type === "video" ? "URL Video" : "URL File"}</Label>
                   <Input
                     id="content-url"
                     placeholder="https://..."
@@ -754,64 +717,6 @@ export default function CourseContent({}: CourseContentProps) {
                     className="mt-2 min-h-20 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
-
-                {/* File Upload Section */}
-                <div className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors hover:border-gray-400">
-                  <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                  <p className="mb-1 text-sm text-gray-600">Click để tải lên hoặc kéo thả file vào đây</p>
-                  <p className="text-xs text-gray-500">
-                    {contentData.type === "video" ? "MP4, MOV, AVI (Max 500MB)" : "PDF, DOC, PPT, XLSX (Max 50MB)"}
-                  </p>
-                </div>
-              </>
-            )}
-
-            {contentData.type === "image" && (
-              <>
-                <div>
-                  <Label htmlFor="content-url">URL Hình ảnh hoặc Upload</Label>
-                  <Input
-                    id="content-url"
-                    placeholder="https://..."
-                    value={contentData.url}
-                    onChange={(e) => setContentData({ ...contentData, url: e.target.value })}
-                    className="mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="content-description">Chú thích</Label>
-                  <Input
-                    id="content-description"
-                    placeholder="Mô tả ngắn về hình ảnh..."
-                    value={contentData.description}
-                    onChange={(e) => setContentData({ ...contentData, description: e.target.value })}
-                    className="mt-2"
-                  />
-                </div>
-
-                {/* Image Upload Section */}
-                <div className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors hover:border-gray-400">
-                  <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                  <p className="mb-1 text-sm text-gray-600">Click để tải lên hình ảnh</p>
-                  <p className="text-xs text-gray-500">JPG, PNG, GIF, SVG (Max 10MB)</p>
-                </div>
-              </>
-            )}
-
-            {contentData.type === "note" && (
-              <>
-                <div>
-                  <Label htmlFor="content-description">Nội dung ghi chú *</Label>
-                  <textarea
-                    id="content-description"
-                    placeholder="Viết nội dung ghi chú quan trọng ở đây..."
-                    value={contentData.description}
-                    onChange={(e) => setContentData({ ...contentData, description: e.target.value })}
-                    className="mt-2 min-h-40 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Hỗ trợ Markdown để định dạng văn bản</p>
-                </div>
               </>
             )}
 
@@ -820,7 +725,7 @@ export default function CourseContent({}: CourseContentProps) {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="quiz-time-limit">Thời gian làm bài (phút) *</Label>
+                      <Label htmlFor="quiz-time-limit">Thời gian (phút) *</Label>
                       <Input
                         id="quiz-time-limit"
                         type="number"
@@ -872,11 +777,15 @@ export default function CourseContent({}: CourseContentProps) {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          const newQuestion: QuizQuestion = {
-                            id: Date.now().toString(),
-                            question: "",
-                            options: ["", ""],
-                            correctAnswer: 0,
+                          const newQuestion: IQuestion = {
+                            id: Date.now(),
+                            content: "",
+                            type: "MULTIPLE_CHOICE",
+                            points: 1,
+                            options: [
+                              { id: Date.now() + 1, content: "", isCorrect: true },
+                              { id: Date.now() + 2, content: "", isCorrect: false },
+                            ],
                             explanation: "",
                           };
                           setContentData({
@@ -913,10 +822,10 @@ export default function CourseContent({}: CourseContentProps) {
 
                           <Input
                             placeholder="Nhập câu hỏi..."
-                            value={q.question}
+                            value={q.content}
                             onChange={(e) => {
                               const updated = [...contentData.questions];
-                              updated[qIndex].question = e.target.value;
+                              updated[qIndex].content = e.target.value;
                               setContentData({ ...contentData, questions: updated });
                             }}
                           />
@@ -931,7 +840,14 @@ export default function CourseContent({}: CourseContentProps) {
                                 className="h-6 text-blue-600 hover:text-blue-700"
                                 onClick={() => {
                                   const updated = [...contentData.questions];
-                                  updated[qIndex].options.push("");
+                                  if (!updated[qIndex].options) {
+                                    updated[qIndex].options = [];
+                                  }
+                                  updated[qIndex].options!.push({
+                                    id: Date.now(),
+                                    content: "",
+                                    isCorrect: false,
+                                  });
                                   setContentData({ ...contentData, questions: updated });
                                 }}
                               >
@@ -939,30 +855,33 @@ export default function CourseContent({}: CourseContentProps) {
                                 Thêm lựa chọn
                               </Button>
                             </div>
-                            {q.options.map((option, oIndex) => (
-                              <div key={oIndex} className="flex items-center gap-2">
+                            {q.options?.map((option, oIndex) => (
+                              <div key={option.id} className="flex items-center gap-2">
                                 <input
                                   type="radio"
                                   name={`question-${qIndex}`}
-                                  checked={q.correctAnswer === oIndex}
+                                  checked={option.isCorrect}
                                   onChange={() => {
                                     const updated = [...contentData.questions];
-                                    updated[qIndex].correctAnswer = oIndex;
+                                    updated[qIndex].options = updated[qIndex].options!.map((opt, idx) => ({
+                                      ...opt,
+                                      isCorrect: idx === oIndex,
+                                    }));
                                     setContentData({ ...contentData, questions: updated });
                                   }}
                                   className="h-4 w-4 text-blue-600"
                                 />
                                 <Input
                                   placeholder={`Đáp án ${String.fromCharCode(65 + oIndex)}`}
-                                  value={option}
+                                  value={option.content}
                                   onChange={(e) => {
                                     const updated = [...contentData.questions];
-                                    updated[qIndex].options[oIndex] = e.target.value;
+                                    updated[qIndex].options![oIndex].content = e.target.value;
                                     setContentData({ ...contentData, questions: updated });
                                   }}
                                   className="flex-1"
                                 />
-                                {q.options.length > 2 && (
+                                {q.options && q.options.length > 2 && (
                                   <Button
                                     type="button"
                                     variant="ghost"
@@ -970,13 +889,7 @@ export default function CourseContent({}: CourseContentProps) {
                                     className="h-8 text-red-600 hover:text-red-700"
                                     onClick={() => {
                                       const updated = [...contentData.questions];
-                                      updated[qIndex].options = updated[qIndex].options.filter((_, i) => i !== oIndex);
-                                      // Adjust correctAnswer if needed
-                                      if (updated[qIndex].correctAnswer === oIndex) {
-                                        updated[qIndex].correctAnswer = 0;
-                                      } else if (updated[qIndex].correctAnswer > oIndex) {
-                                        updated[qIndex].correctAnswer--;
-                                      }
+                                      updated[qIndex].options = updated[qIndex].options!.filter((_, i) => i !== oIndex);
                                       setContentData({ ...contentData, questions: updated });
                                     }}
                                   >
@@ -1033,72 +946,78 @@ export default function CourseContent({}: CourseContentProps) {
         <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col">
           <DialogHeader>
             <DialogTitle>{viewingQuizItem?.title}</DialogTitle>
-            <DialogDescription>{viewingQuizItem?.description || "Xem nội dung bài kiểm tra"}</DialogDescription>
+            <DialogDescription>
+              {viewingQuizItem?.type === "quiz" ? viewingQuizItem.description : "Xem nội dung bài kiểm tra"}
+            </DialogDescription>
           </DialogHeader>
           <div className="flex-1 space-y-4 overflow-y-auto py-4">
             {/* Quiz Info */}
-            <div className="grid grid-cols-3 gap-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
-              <div>
-                <p className="mb-1 text-xs text-gray-600">Thời gian làm bài</p>
-                <p className="font-semibold text-gray-900">{viewingQuizItem?.timeLimit || 30} phút</p>
-              </div>
-              <div>
-                <p className="mb-1 text-xs text-gray-600">Điểm đạt</p>
-                <p className="font-semibold text-gray-900">{viewingQuizItem?.passingScore || 70}%</p>
-              </div>
-              <div>
-                <p className="mb-1 text-xs text-gray-600">Số câu hỏi</p>
-                <p className="font-semibold text-gray-900">{viewingQuizItem?.questions?.length || 0} câu</p>
-              </div>
-            </div>
-
-            {/* Questions */}
-            {viewingQuizItem?.questions && viewingQuizItem.questions.length > 0 ? (
-              <div className="space-y-6">
-                {viewingQuizItem.questions.map((q, qIndex) => (
-                  <div key={q.id} className="rounded-lg border bg-white p-4">
-                    <div className="mb-3 flex items-start gap-3">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-semibold text-purple-600">
-                        {qIndex + 1}
-                      </span>
-                      <p className="flex-1 font-medium text-gray-900">{q.question}</p>
-                    </div>
-
-                    <div className="ml-9 space-y-2">
-                      {q.options.map((option, oIndex) => (
-                        <div
-                          key={oIndex}
-                          className={`flex items-start gap-2 rounded-lg border p-3 ${
-                            q.correctAnswer === oIndex ? "border-green-300 bg-green-50" : "border-gray-200 bg-gray-50"
-                          }`}
-                        >
-                          <span className="shrink-0 font-semibold text-gray-700">
-                            {String.fromCharCode(65 + oIndex)}.
-                          </span>
-                          <span className={q.correctAnswer === oIndex ? "font-medium text-green-900" : "text-gray-700"}>
-                            {option}
-                          </span>
-                          {q.correctAnswer === oIndex && (
-                            <span className="ml-auto text-xs font-semibold text-green-600">✓ Đáp án đúng</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {q.explanation && (
-                      <div className="mt-3 ml-9 rounded-lg border border-blue-200 bg-blue-50 p-3">
-                        <p className="mb-1 text-xs font-semibold text-blue-900">💡 Giải thích:</p>
-                        <p className="text-sm text-blue-800">{q.explanation}</p>
-                      </div>
-                    )}
+            {viewingQuizItem?.type === "quiz" && (
+              <>
+                <div className="grid grid-cols-3 gap-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
+                  <div>
+                    <p className="mb-1 text-xs text-gray-600">Thời gian làm bài</p>
+                    <p className="font-semibold text-gray-900">{viewingQuizItem.durationMinutes} phút</p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-12 text-center text-gray-500">
-                <FileQuestion className="mx-auto mb-3 h-16 w-16 text-gray-300" />
-                <p className="text-sm">Bài kiểm tra này chưa có câu hỏi</p>
-              </div>
+                  <div>
+                    <p className="mb-1 text-xs text-gray-600">Điểm đạt</p>
+                    <p className="font-semibold text-gray-900">{viewingQuizItem.passingScore}%</p>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs text-gray-600">Số câu hỏi</p>
+                    <p className="font-semibold text-gray-900">{viewingQuizItem.questions.length} câu</p>
+                  </div>
+                </div>
+
+                {/* Questions */}
+                {viewingQuizItem.questions.length > 0 ? (
+                  <div className="space-y-6">
+                    {viewingQuizItem.questions.map((q, qIndex) => (
+                      <div key={q.id} className="rounded-lg border bg-white p-4">
+                        <div className="mb-3 flex items-start gap-3">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-semibold text-purple-600">
+                            {qIndex + 1}
+                          </span>
+                          <p className="flex-1 font-medium text-gray-900">{q.content}</p>
+                        </div>
+
+                        <div className="ml-9 space-y-2">
+                          {q.options?.map((option, oIndex) => (
+                            <div
+                              key={option.id}
+                              className={`flex items-start gap-2 rounded-lg border p-3 ${
+                                option.isCorrect ? "border-green-300 bg-green-50" : "border-gray-200 bg-gray-50"
+                              }`}
+                            >
+                              <span className="shrink-0 font-semibold text-gray-700">
+                                {String.fromCharCode(65 + oIndex)}.
+                              </span>
+                              <span className={option.isCorrect ? "font-medium text-green-900" : "text-gray-700"}>
+                                {option.content}
+                              </span>
+                              {option.isCorrect && (
+                                <span className="ml-auto text-xs font-semibold text-green-600">✓ Đáp án đúng</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {q.explanation && (
+                          <div className="mt-3 ml-9 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                            <p className="mb-1 text-xs font-semibold text-blue-900">💡 Giải thích:</p>
+                            <p className="text-sm text-blue-800">{q.explanation}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-gray-500">
+                    <FileQuestion className="mx-auto mb-3 h-16 w-16 text-gray-300" />
+                    <p className="text-sm">Bài kiểm tra này chưa có câu hỏi</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
           <DialogFooter>
@@ -1110,7 +1029,9 @@ export default function CourseContent({}: CourseContentProps) {
                 setViewQuizModalOpen(false);
                 if (viewingQuizItem) {
                   // Find the section containing this quiz
-                  const sectionWithQuiz = sections.find((s) => s.items.some((item) => item.id === viewingQuizItem.id));
+                  const sectionWithQuiz = sections.find((s) =>
+                    s.contents.some((item) => item.id === viewingQuizItem.id),
+                  );
                   if (sectionWithQuiz) {
                     handleEditContent(sectionWithQuiz.id, viewingQuizItem);
                   }

@@ -7,7 +7,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const menuItems = [
+const teacherMenuItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -19,15 +19,37 @@ const menuItems = [
     href: "/teacher/courses",
   },
   {
+    title: "Reports",
+    icon: FileText,
+    href: "/teacher/reports",
+  },
+  {
     title: "Settings",
     icon: Settings,
     href: "/teacher/settings",
   },
+];
 
+const studentMenuItems = [
   {
-    title: "Reports",
-    icon: FileText,
-    href: "/student/reports",
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/student/dashboard",
+  },
+  {
+    title: "My Courses",
+    icon: BookOpen,
+    href: "/student/courses",
+  },
+  {
+    title: "Learning Paths",
+    icon: GraduationCap,
+    href: "/student/learning-paths",
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    href: "/student/settings",
   },
 ];
 
@@ -64,26 +86,24 @@ const Sidebar = () => {
 
       {/* Navigation Menu */}
       <nav className="flex-1 space-y-1 p-4">
-        {menuItems
-          .filter((item) => item.href.startsWith(`/${user.role.toLowerCase()}`))
-          .map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.href);
+        {(user.role === "TEACHER" ? teacherMenuItems : studentMenuItems).map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname.startsWith(item.href);
 
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
-                  isActive ? "bg-blue-500 text-white" : "text-gray-700 hover:bg-gray-100",
-                )}
-              >
-                <Icon className="size-5" />
-                <span>{item.title}</span>
-              </Link>
-            );
-          })}
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
+                isActive ? "bg-blue-500 text-white" : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
+              <Icon className="size-5" />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* User Profile Section */}
